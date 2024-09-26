@@ -163,6 +163,7 @@ def main():
     verbose = tk.BooleanVar(value=True)
     include_card_backs = tk.BooleanVar()
     exclude_card_urls = tk.BooleanVar()
+    generate_bleed = tk.BooleanVar()
     sharpen_text = tk.BooleanVar()
     draw_cut_lines = tk.BooleanVar()
     save_images = tk.BooleanVar()
@@ -189,32 +190,39 @@ def main():
     )
     exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
 
+    generate_bleed_checkbox = ttk.Checkbutton(
+        boolean_options_frame,
+        text="Generate Bleed",
+        variable=generate_bleed,
+    )
+    generate_bleed_checkbox.grid(column=0, row=3, sticky=tk.W)
+
     sharpen_text_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Sharpen Text (Experimental)", variable=sharpen_text
     )
-    sharpen_text_checkbox.grid(column=0, row=3, sticky=tk.W)
+    sharpen_text_checkbox.grid(column=0, row=4, sticky=tk.W)
 
     draw_cut_lines_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Draw Cut Lines", variable=draw_cut_lines
     )
-    draw_cut_lines_checkbox.grid(column=0, row=4, sticky=tk.W)
+    draw_cut_lines_checkbox.grid(column=0, row=5, sticky=tk.W)
 
     save_images_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Save Images to File", variable=save_images
     )
-    save_images_checkbox.grid(column=0, row=5, sticky=tk.W)
+    save_images_checkbox.grid(column=0, row=6, sticky=tk.W)
 
     load_images_from_directory_checkbox = ttk.Checkbutton(
         boolean_options_frame,
         text="Load Images from Directory",
         variable=load_images_from_directory,
     )
-    load_images_from_directory_checkbox.grid(column=0, row=6, sticky=tk.W)
+    load_images_from_directory_checkbox.grid(column=0, row=7, sticky=tk.W)
 
     arrange_into_pdf_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Arrange Images into PDF", variable=arrange_into_pdf
     )
-    arrange_into_pdf_checkbox.grid(column=0, row=7, sticky=tk.W)
+    arrange_into_pdf_checkbox.grid(column=0, row=8, sticky=tk.W)
 
     # Create a button to start the script
     def start_script_wrapper():
@@ -223,6 +231,7 @@ def main():
             verbose.get(),
             include_card_backs.get(),
             exclude_card_urls.get(),
+            generate_bleed.get(),
             sharpen_text.get(),
             draw_cut_lines.get(),
             save_images.get(),
