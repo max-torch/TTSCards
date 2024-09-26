@@ -76,22 +76,22 @@ def main():
     cachepath_label = ttk.Label(cachepath_frame, textvariable=cachepath, wraplength=400)
     cachepath_label.grid(column=0, row=0, sticky=tk.W)
 
-    # Create radio buttons for the image size
-    image_size = tk.StringVar(value="standard")
-    image_size_frame = ttk.LabelFrame(main_frame, text="Image Size")
+    # Create radio buttons for the preset image size
+    preset_image_size = tk.StringVar(value="standard")
+    image_size_frame = ttk.LabelFrame(main_frame, text="Preset Image Size")
     image_size_frame.grid(column=0, row=5, sticky=tk.W)
 
     standard_radio = ttk.Radiobutton(
         image_size_frame,
         text="Standard American Card (63.5x88)",
-        variable=image_size,
+        variable=preset_image_size,
         value="standard",
     )
     standard_radio.grid(column=0, row=0, sticky=tk.W)
     mini_radio = ttk.Radiobutton(
         image_size_frame,
         text="Mini American Card (41x63)",
-        variable=image_size,
+        variable=preset_image_size,
         value="mini",
     )
     mini_radio.grid(column=0, row=1, sticky=tk.W)
@@ -228,7 +228,8 @@ def main():
             save_images.get(),
             load_images_from_directory.get(),
             arrange_into_pdf.get(),
-            image_size.get(),
+            preset_image_size.get(),
+            custom_image_size.get(),
             sheet_size.get(),
             outer_margin_size.get(),
             inner_margin_size.get(),
