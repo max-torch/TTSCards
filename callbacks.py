@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 # Define preset page and card sizes in pixels at 300dpi
@@ -8,6 +9,14 @@ SHEET_SIZES = {
     "Legal": (2550, 4200),
 }
 CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
+
+
+# Create a logger for callbacks.py
+logger = logging.getLogger("callbacks")
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 
 def start_script(
@@ -30,24 +39,29 @@ def start_script(
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
 ) -> None:
-    logging.debug(f"filepath: {filepath}")
-    logging.debug(f"cachepath: {cachepath}")
-    logging.debug(f"preset_image_size: {preset_image_size}")
-    logging.debug(f"custom_image_size_width: {custom_image_size_width}")
-    logging.debug(f"custom_image_size_length: {custom_image_size_length}")
-    logging.debug(f"sheet_size: {sheet_size}")
-    logging.debug(f"outer_margin_size: {outer_margin_size}")
-    logging.debug(f"inner_margin_size: {inner_margin_size}")
-    logging.debug(f"dpi: {dpi}")
-    logging.debug(f"verbose: {verbose}")
-    logging.debug(f"include_card_backs: {include_card_backs}")
-    logging.debug(f"exclude_card_urls: {exclude_card_urls}")
-    logging.debug(f"generate_bleed: {generate_bleed}")
-    logging.debug(f"sharpen_text: {sharpen_text}")
-    logging.debug(f"draw_cut_lines: {draw_cut_lines}")
-    logging.debug(f"save_images: {save_images}")
-    logging.debug(f"load_images_from_directory: {load_images_from_directory}")
-    logging.debug(f"arrange_into_pdf: {arrange_into_pdf}")
+    if os.getenv("DEBUG_MODE", "false").lower() == "true":
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO) if verbose else logger.setLevel(logging.WARNING)
+
+    logger.debug(f"filepath: {filepath}")
+    logger.debug(f"cachepath: {cachepath}")
+    logger.debug(f"preset_image_size: {preset_image_size}")
+    logger.debug(f"custom_image_size_width: {custom_image_size_width}")
+    logger.debug(f"custom_image_size_length: {custom_image_size_length}")
+    logger.debug(f"sheet_size: {sheet_size}")
+    logger.debug(f"outer_margin_size: {outer_margin_size}")
+    logger.debug(f"inner_margin_size: {inner_margin_size}")
+    logger.debug(f"dpi: {dpi}")
+    logger.debug(f"verbose: {verbose}")
+    logger.debug(f"include_card_backs: {include_card_backs}")
+    logger.debug(f"exclude_card_urls: {exclude_card_urls}")
+    logger.debug(f"generate_bleed: {generate_bleed}")
+    logger.debug(f"sharpen_text: {sharpen_text}")
+    logger.debug(f"draw_cut_lines: {draw_cut_lines}")
+    logger.debug(f"save_images: {save_images}")
+    logger.debug(f"load_images_from_directory: {load_images_from_directory}")
+    logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
 
     # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
     image_size = (
@@ -55,4 +69,4 @@ def start_script(
         if custom_image_size_width == 0 or custom_image_size_length == 0
         else (custom_image_size_width, custom_image_size_length)
     )
-    logging.debug(f"image_size: {image_size}")
+    logger.debug(f"image_size: {image_size}")

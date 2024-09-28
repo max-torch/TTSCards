@@ -8,7 +8,7 @@ from callbacks import start_script
 
 
 def main():
-    logging.info("Loading GUI...")
+    logger.info("Loading GUI...")
 
     # Create a root window
     root = tk.Tk()
@@ -249,11 +249,18 @@ def main():
     for child in main_frame.winfo_children():
         child.grid_configure(padx=5, pady=5)
 
-    logging.info("GUI loaded")
+    logger.info("GUI loaded")
 
     root.mainloop()
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger("main")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        "%(name)s - %(levelname)s - %(message)s"
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     main()
