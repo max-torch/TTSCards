@@ -1,8 +1,8 @@
+from collections import namedtuple
 import logging
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog
-
 
 from callbacks import start_script
 
@@ -97,7 +97,8 @@ def main():
     mini_radio.grid(column=0, row=1, sticky=tk.W)
 
     # Create entry fields for the custom image size
-    custom_image_size = [tk.IntVar(), tk.IntVar()]
+    CustomImageSize = namedtuple("CustomImageSize", ["width", "length"])
+    custom_image_size = CustomImageSize(tk.IntVar(), tk.IntVar())
     custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size")
     custom_image_size_frame.grid(column=0, row=6, sticky=tk.W)
 
@@ -228,6 +229,15 @@ def main():
     def start_script_wrapper():
         """Wrapper function to pass all the variables to the start_script function."""
         start_script(
+            filepath.get(),
+            cachepath.get(),
+            preset_image_size.get(),
+            custom_image_size.width.get(),
+            custom_image_size.length.get(),
+            sheet_size.get(),
+            outer_margin_size.get(),
+            inner_margin_size.get(),
+            dpi.get(),
             verbose.get(),
             include_card_backs.get(),
             exclude_card_urls.get(),
@@ -237,12 +247,6 @@ def main():
             save_images.get(),
             load_images_from_directory.get(),
             arrange_into_pdf.get(),
-            preset_image_size.get(),
-            custom_image_size.get(),
-            sheet_size.get(),
-            outer_margin_size.get(),
-            inner_margin_size.get(),
-            dpi.get(),
         )
 
     start_button = ttk.Button(
@@ -260,5 +264,5 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
     main()

@@ -1,4 +1,15 @@
+import logging
+
 def start_script(
+    filepath: str,
+    cachepath: str,
+    preset_image_size: tuple,
+    custom_image_size_width: int,
+    custom_image_size_length: int,
+    sheet_size: tuple,
+    outer_margin_size: float,
+    inner_margin_size: float,
+    dpi: int,
     verbose: bool,
     include_card_backs: bool,
     exclude_card_urls: bool,
@@ -8,27 +19,22 @@ def start_script(
     save_images: bool,
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
-    preset_image_size: tuple,
-    custom_image_size: tuple,
-    sheet_size: tuple,
-    outer_margin_size: float,
-    inner_margin_size: float,
-    dpi: int,
 ) -> None:
-    print(
-        verbose,
-        include_card_backs,
-        exclude_card_urls,
-        generate_bleed,
-        sharpen_text,
-        draw_cut_lines,
-        save_images,
-        load_images_from_directory,
-        arrange_into_pdf,
-        preset_image_size,
-        custom_image_size,
-        sheet_size,
-        outer_margin_size,
-        inner_margin_size,
-        dpi,
-    )
+    logging.debug(f"filepath: {filepath}")
+    logging.debug(f"cachepath: {cachepath}")
+    logging.debug(f"preset_image_size: {preset_image_size}")
+    logging.debug(f"custom_image_size_width: {custom_image_size_width}")
+    logging.debug(f"custom_image_size_length: {custom_image_size_length}")
+    logging.debug(f"sheet_size: {sheet_size}")
+    logging.debug(f"outer_margin_size: {outer_margin_size}")
+    logging.debug(f"inner_margin_size: {inner_margin_size}")
+    logging.debug(f"dpi: {dpi}")
+    logging.debug(f"verbose: {verbose}")
+    logging.debug(f"include_card_backs: {include_card_backs}")
+    logging.debug(f"exclude_card_urls: {exclude_card_urls}")
+    logging.debug(f"generate_bleed: {generate_bleed}")
+    logging.debug(f"sharpen_text: {sharpen_text}")
+    logging.debug(f"draw_cut_lines: {draw_cut_lines}")
+    logging.debug(f"save_images: {save_images}")
+    logging.debug(f"load_images_from_directory: {load_images_from_directory}")
+    logging.debug(f"arrange_into_pdf: {arrange_into_pdf}")
