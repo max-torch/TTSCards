@@ -177,11 +177,6 @@ def start_script(
     else:
         logger.setLevel(logging.INFO) if verbose else logger.setLevel(logging.WARNING)
 
-    with open("image_blacklist.txt", "r") as file:
-        blacklist = file.read().splitlines()
-    logger.debug(type(blacklist))
-    logger.debug(f"blacklist: {blacklist}")
-
     logger.debug(f"filepath: {filepath}")
     logger.debug(f"cachepath: {cachepath}")
     logger.debug(f"preset_image_size: {preset_image_size}")
@@ -205,6 +200,9 @@ def start_script(
 
     output_directory = "./output"
     os.makedirs(output_directory, exist_ok=True)
+
+    with open("image_blacklist.txt", "r") as file:
+        blacklist = file.read().splitlines() if exclude_card_urls else []
 
     # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
     image_size = (
