@@ -49,7 +49,7 @@ def start_script(
     logging.debug(f"load_images_from_directory: {load_images_from_directory}")
     logging.debug(f"arrange_into_pdf: {arrange_into_pdf}")
 
-    # Create a variable `image_size` and set it to the preset image size if the custom image size is not None or not 0
+    # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
     image_size = (
         CARD_SIZES[preset_image_size]
         if custom_image_size_width == 0 or custom_image_size_length == 0
