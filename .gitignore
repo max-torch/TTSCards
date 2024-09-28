@@ -152,3 +152,7 @@ cython_debug/
 #.idea/
 cachepath.txt
 .vscode/settings.json
+filepath.txt
+/output
+image_blacklist.txt
+/cache_test
