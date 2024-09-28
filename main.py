@@ -7,15 +7,6 @@ from tkinter import ttk, filedialog
 from callbacks import start_script
 
 
-# Define preset page and card sizes in pixels at 300dpi
-SHEET_SIZES = {
-    "A4": (2480, 3508),
-    "Letter": (2550, 3300),
-    "Legal": (2550, 4200),
-}
-CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
-
-
 def main():
     logging.info("Loading GUI...")
 
@@ -105,14 +96,14 @@ def main():
     custom_size_width_label = ttk.Label(custom_image_size_frame, text="Width:")
     custom_size_width_label.grid(column=0, row=0, sticky=tk.W)
     custom_size_width_entry = ttk.Entry(
-        custom_image_size_frame, textvariable=custom_image_size[0]
+        custom_image_size_frame, textvariable=custom_image_size.width
     )
     custom_size_width_entry.grid(column=1, row=0, sticky=tk.W)
 
     custom_size_length_label = ttk.Label(custom_image_size_frame, text="Length:")
     custom_size_length_label.grid(column=0, row=1, sticky=tk.W)
     custom_size_length_entry = ttk.Entry(
-        custom_image_size_frame, textvariable=custom_image_size[1]
+        custom_image_size_frame, textvariable=custom_image_size.length
     )
     custom_size_length_entry.grid(column=1, row=1, sticky=tk.W)
 

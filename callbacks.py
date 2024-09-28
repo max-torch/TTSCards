@@ -1,5 +1,15 @@
 import logging
 
+
+# Define preset page and card sizes in pixels at 300dpi
+SHEET_SIZES = {
+    "A4": (2480, 3508),
+    "Letter": (2550, 3300),
+    "Legal": (2550, 4200),
+}
+CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
+
+
 def start_script(
     filepath: str,
     cachepath: str,
@@ -38,3 +48,11 @@ def start_script(
     logging.debug(f"save_images: {save_images}")
     logging.debug(f"load_images_from_directory: {load_images_from_directory}")
     logging.debug(f"arrange_into_pdf: {arrange_into_pdf}")
+
+    # Create a variable `image_size` and set it to the preset image size if the custom image size is not None or not 0
+    image_size = (
+        CARD_SIZES[preset_image_size]
+        if custom_image_size_width == 0 or custom_image_size_length == 0
+        else (custom_image_size_width, custom_image_size_length)
+    )
+    logging.debug(f"image_size: {image_size}")
