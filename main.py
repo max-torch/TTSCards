@@ -8,6 +8,13 @@ from callbacks import start_script
 
 
 def main():
+    logger = logging.getLogger("main")
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+
     logger.info("Loading GUI...")
 
     # Create a root window
@@ -277,10 +284,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logger = logging.getLogger("main")
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
     main()
