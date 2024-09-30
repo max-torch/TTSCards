@@ -153,6 +153,24 @@ def process_container(
         return images
 
 
+def load_images(output_directory: str) -> list[Image.Image]:
+    images = []
+    image_files = sorted(
+        [
+            file
+            for file in os.listdir(output_directory)
+            if file.endswith(".png") or file.endswith(".jpg")
+        ],
+        key=lambda file: [
+            int(text) if text.isdigit() else text for text in re.split(r"(\d+)", file)
+        ],
+    )
+    for filename in image_files:
+        image = Image.open(f"{output_directory}/{filename}")
+        images.append(image)
+    return images
+
+
 def start_script(
     filepath: str,
     cachepath: str,
@@ -206,24 +224,19 @@ def start_script(
         blacklist = file.read().splitlines() if exclude_card_urls else []
 
     if load_images_from_directory:
-        # Load images from "./tts_extract_out_images" directory
-        images = []
-        image_files = sorted(
-            [
-                file
-                for file in os.listdir(f"{output_directory}/img")
-                if file.endswith(".png") or file.endswith(".jpg")
-            ],
-            key=lambda file: [
-                int(text) if text.isdigit() else text
-                for text in re.split(r"(\d+)", file)
-            ],
-        )
-        logger.debug(f"image_files: {image_files}")
-        for filename in image_files:
-            image = Image.open(f"{output_directory}/img/{filename}")
-            images.append(image)
-        logger.info(f"Successfully loaded {len(images)} images from directory")
+        logger.info("Loading images from directory")
+        if split_face_and_back:
+            face_images = load_images(f"{output_directory}/img/face_images")
+            logger.info(
+                f"Successfully loaded {len(face_images)} face images from directory"
+            )
+            back_images = load_images(f"{output_directory}/img/back_images")
+            logger.info(
+                f"Successfully loaded {len(back_images)} back images from directory"
+            )
+        else:
+            images = load_images(f"{output_directory}/img")
+            logger.info(f"Successfully loaded {len(images)} images from directory")
     else:
         with open(filepath, "r") as file:
             save_object_data = json.load(file)
@@ -236,26 +249,28 @@ def start_script(
             output_directory,
             cachepath,
         )
+        logger.info(f"Successfully loaded {len(images)} images")
+        if split_face_and_back:
+            face_images = [image["face"] for image in images if "face" in image]
+            back_images = [image["back"] for image in images if "back" in image]
+            logger.info(f"Successfully separated {len(face_images)} face images")
+            logger.info(f"Successfully separated {len(back_images)} back images")
 
     if save_images:
         logger.info("Saving images")
         if split_face_and_back:
             os.makedirs(f"{output_directory}/img/face_images", exist_ok=True)
             os.makedirs(f"{output_directory}/img/back_images", exist_ok=True)
+
+            for idx, image in enumerate(face_images):
+                image.save(f"{output_directory}/img/face_images/card_{idx}_face.png")
+            for idx, image in enumerate(back_images):
+                image.save(f"{output_directory}/img/back_images/card_{idx}_back.png")
         else:
             os.makedirs(f"{output_directory}/img", exist_ok=True)
-        for idx, image in enumerate(images):
-            for key, value in image.items():
-                if split_face_and_back:
-                    if key == "face":
-                        value.save(
-                            f"{output_directory}/img/face_images/card_{idx}_{key}.png"
-                        )
-                    elif key == "back":
-                        value.save(
-                            f"{output_directory}/img/back_images/card_{idx}_{key}.png"
-                        )
-                else:
+
+            for idx, image in enumerate(images):
+                for key, value in image.items():
                     value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
 
@@ -272,16 +287,6 @@ def start_script(
 
         if split_face_and_back:
             logger.info("Arranging images into PDF with separate face and back images")
-            # Expect ./output/face_images and ./output/back_images directories
-            face_images = []
-            back_images = []
-            for idx, image in enumerate(images):
-                for key, value in image.items():
-                    if key == "face":
-                        face_images.append(value)
-                    elif key == "back":
-                        back_images.append(value)
-
             for i, images in enumerate([face_images, back_images]):
                 generate_pdf(
                     images,
