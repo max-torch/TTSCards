@@ -139,36 +139,28 @@ def main():
     legal_radio.grid(column=0, row=2, sticky=tk.W)
 
     # Create entry fields for the margin size and dpi
-    outer_margin_size = tk.IntVar(value=36)
-    inner_margin_size = tk.IntVar()
+    gutter_margin_size = tk.DoubleVar(value=3.175)
     dpi = tk.IntVar(value=360)
     margin_dpi_frame = ttk.LabelFrame(main_frame, text="Margin and DPI")
     margin_dpi_frame.grid(column=0, row=8, sticky=tk.W)
 
-    outer_margin_size_label = ttk.Label(margin_dpi_frame, text="Outer Margin:")
-    outer_margin_size_label.grid(column=0, row=0, sticky=tk.W)
-    outer_margin_size_entry = ttk.Entry(
-        margin_dpi_frame, textvariable=outer_margin_size
+    gutter_margin_size_label = ttk.Label(margin_dpi_frame, text="Gutter Margin(mm):")
+    gutter_margin_size_label.grid(column=0, row=0, sticky=tk.W)
+    gutter_margin_size_entry = ttk.Entry(
+        margin_dpi_frame, textvariable=gutter_margin_size
     )
-    outer_margin_size_entry.grid(column=1, row=0, sticky=tk.W)
-
-    inner_margin_size_label = ttk.Label(margin_dpi_frame, text="Inner Margin:")
-    inner_margin_size_label.grid(column=0, row=1, sticky=tk.W)
-    inner_margin_size_entry = ttk.Entry(
-        margin_dpi_frame, textvariable=inner_margin_size
-    )
-    inner_margin_size_entry.grid(column=1, row=1, sticky=tk.W)
+    gutter_margin_size_entry.grid(column=1, row=0, sticky=tk.W)
 
     dpi_label = ttk.Label(margin_dpi_frame, text="DPI:")
-    dpi_label.grid(column=0, row=2, sticky=tk.W)
+    dpi_label.grid(column=0, row=1, sticky=tk.W)
     dpi_entry = ttk.Entry(margin_dpi_frame, textvariable=dpi)
-    dpi_entry.grid(column=1, row=2, sticky=tk.W)
+    dpi_entry.grid(column=1, row=1, sticky=tk.W)
 
     # Create checkboxes for the boolean options
     verbose = tk.BooleanVar(value=True)
     process_nested_containers = tk.BooleanVar(value=True)
     include_card_backs = tk.BooleanVar()
-    exclude_card_urls = tk.BooleanVar()
+    exclude_card_urls = tk.BooleanVar(value=True)
     generate_bleed = tk.BooleanVar()
     sharpen_text = tk.BooleanVar()
     draw_cut_lines = tk.BooleanVar()
@@ -253,8 +245,7 @@ def main():
             custom_image_size.width.get(),
             custom_image_size.length.get(),
             sheet_size.get(),
-            outer_margin_size.get(),
-            inner_margin_size.get(),
+            gutter_margin_size.get(),
             dpi.get(),
             verbose.get(),
             process_nested_containers.get(),

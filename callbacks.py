@@ -1,12 +1,15 @@
 import json
 import logging
 import os
+import re
 from urllib.request import urlopen
 
 from PIL import Image
 
+from pdf_generation import generate_pdf
 
-# Define preset page and card sizes in pixels at 300dpi
+
+# Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
     "A4": (2480, 3508),
     "Letter": (2550, 3300),
@@ -157,8 +160,7 @@ def start_script(
     custom_image_size_width: int,
     custom_image_size_length: int,
     sheet_size: tuple,
-    outer_margin_size: float,
-    inner_margin_size: float,
+    gutter_margin_size: float,
     dpi: int,
     verbose: bool,
     process_nested_containers: bool,
@@ -183,8 +185,7 @@ def start_script(
     logger.debug(f"custom_image_size_width: {custom_image_size_width}")
     logger.debug(f"custom_image_size_length: {custom_image_size_length}")
     logger.debug(f"sheet_size: {sheet_size}")
-    logger.debug(f"outer_margin_size: {outer_margin_size}")
-    logger.debug(f"inner_margin_size: {inner_margin_size}")
+    logger.debug(f"gutter_margin_size: {gutter_margin_size}")
     logger.debug(f"dpi: {dpi}")
     logger.debug(f"verbose: {verbose}")
     logger.debug(f"process_nested_containers: {process_nested_containers}")
@@ -204,18 +205,25 @@ def start_script(
     with open("image_blacklist.txt", "r") as file:
         blacklist = file.read().splitlines() if exclude_card_urls else []
 
-    # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
-    image_size = (
-        CARD_SIZES[preset_image_size]
-        if custom_image_size_width == 0 or custom_image_size_length == 0
-        else (custom_image_size_width, custom_image_size_length)
-    )
-    logger.debug(f"image_size: {image_size}")
-
     if load_images_from_directory:
-        logger.info("Loading images from directory")
-        # Load images from directory
-        pass
+        # Load images from "./tts_extract_out_images" directory
+        images = []
+        image_files = sorted(
+            [
+                file
+                for file in os.listdir(f"{output_directory}/img")
+                if file.endswith(".png") or file.endswith(".jpg")
+            ],
+            key=lambda file: [
+                int(text) if text.isdigit() else text
+                for text in re.split(r"(\d+)", file)
+            ],
+        )
+        logger.debug(f"image_files: {image_files}")
+        for filename in image_files:
+            image = Image.open(f"{output_directory}/img/{filename}")
+            images.append(image)
+        logger.info(f"Successfully loaded {len(images)} images from directory")
     else:
         with open(filepath, "r") as file:
             save_object_data = json.load(file)
@@ -232,19 +240,74 @@ def start_script(
     if save_images:
         logger.info("Saving images")
         if split_face_and_back:
-            os.makedirs(f"{output_directory}/face_images", exist_ok=True)
-            os.makedirs(f"{output_directory}/back_images", exist_ok=True)
+            os.makedirs(f"{output_directory}/img/face_images", exist_ok=True)
+            os.makedirs(f"{output_directory}/img/back_images", exist_ok=True)
+        else:
+            os.makedirs(f"{output_directory}/img", exist_ok=True)
         for idx, image in enumerate(images):
             for key, value in image.items():
                 if split_face_and_back:
                     if key == "face":
                         value.save(
-                            f"{output_directory}/face_images/card_{idx}_{key}.png"
+                            f"{output_directory}/img/face_images/card_{idx}_{key}.png"
                         )
                     elif key == "back":
                         value.save(
-                            f"{output_directory}/back_images/card_{idx}_{key}.png"
+                            f"{output_directory}/img/back_images/card_{idx}_{key}.png"
                         )
                 else:
-                    value.save(f"{output_directory}/card_{idx}_{key}.png")
+                    value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
+
+    if arrange_into_pdf:
+        sheet_size = SHEET_SIZES[sheet_size]
+        # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
+        image_size = (
+            CARD_SIZES[preset_image_size]
+            if custom_image_size_width == 0 or custom_image_size_length == 0
+            else (custom_image_size_width, custom_image_size_length)
+        )
+        image_length = image_size[1]
+        logger.debug(f"image_size: {image_size}")
+
+        if split_face_and_back:
+            logger.info("Arranging images into PDF with separate face and back images")
+            # Expect ./output/face_images and ./output/back_images directories
+            face_images = []
+            back_images = []
+            for idx, image in enumerate(images):
+                for key, value in image.items():
+                    if key == "face":
+                        face_images.append(value)
+                    elif key == "back":
+                        back_images.append(value)
+
+            for i, images in enumerate([face_images, back_images]):
+                generate_pdf(
+                    images,
+                    output_directory,
+                    sheet_size,
+                    image_length,
+                    dpi,
+                    logger,
+                    draw_cut_lines,
+                    generate_bleed,
+                    sharpen_text,
+                    gutter_margin_size,
+                    filename=f"output_face.pdf" if i == 0 else "output_back.pdf",
+                )
+        else:
+            logger.info("Arranging images into PDF")
+            generate_pdf(
+                images,
+                output_directory,
+                sheet_size,
+                image_length,
+                dpi,
+                logger,
+                draw_cut_lines,
+                generate_bleed,
+                sharpen_text,
+                gutter_margin_size,
+                filename="output.pdf",
+            )
