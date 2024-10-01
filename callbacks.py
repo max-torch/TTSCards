@@ -118,7 +118,10 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
             image["face"] = card_face
 
     if back_url:
-        card_back = download_image(back_url, blacklist, cachepath)
+        if face_url == back_url:
+            card_back = card_face
+        else:
+            card_back = download_image(back_url, blacklist, cachepath)
         if card_back:
             image["back"] = card_back
 
