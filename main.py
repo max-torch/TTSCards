@@ -169,7 +169,7 @@ def main():
     arrange_into_pdf = tk.BooleanVar()
 
     boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
-    boolean_options_frame.grid(column=0, row=9, rowspan=9, sticky=tk.W)
+    boolean_options_frame.grid(column=0, row=9, rowspan=5, sticky=tk.W)
 
     verbose_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Verbose Console Output", variable=verbose
@@ -190,44 +190,53 @@ def main():
     )
     exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
 
-    generate_bleed_checkbox = ttk.Checkbutton(
-        boolean_options_frame,
-        text="Generate Bleed",
-        variable=generate_bleed,
-    )
-    generate_bleed_checkbox.grid(column=0, row=3, sticky=tk.W)
-
-    sharpen_text_checkbox = ttk.Checkbutton(
-        boolean_options_frame, text="Sharpen Text (Experimental)", variable=sharpen_text
-    )
-    sharpen_text_checkbox.grid(column=0, row=4, sticky=tk.W)
-
-    draw_cut_lines_checkbox = ttk.Checkbutton(
-        boolean_options_frame, text="Draw Cut Lines", variable=draw_cut_lines
-    )
-    draw_cut_lines_checkbox.grid(column=0, row=5, sticky=tk.W)
-
-    split_face_and_back_checkbox = ttk.Checkbutton(
-        boolean_options_frame, text="Split Face and Back", variable=split_face_and_back
-    )
-    split_face_and_back_checkbox.grid(column=0, row=6, sticky=tk.W)
-
     save_images_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Save Images to File", variable=save_images
     )
-    save_images_checkbox.grid(column=0, row=7, sticky=tk.W)
+    save_images_checkbox.grid(column=0, row=3, sticky=tk.W)
 
     load_images_from_directory_checkbox = ttk.Checkbutton(
         boolean_options_frame,
         text="Load Images from Directory",
         variable=load_images_from_directory,
     )
-    load_images_from_directory_checkbox.grid(column=0, row=8, sticky=tk.W)
+    load_images_from_directory_checkbox.grid(column=0, row=4, sticky=tk.W)
+
+    pdf_generation_options_frame = ttk.LabelFrame(
+        main_frame, text="PDF Generation Options"
+    )
+    pdf_generation_options_frame.grid(column=0, row=15, rowspan=5, sticky=tk.W)
+
+    generate_bleed_checkbox = ttk.Checkbutton(
+        pdf_generation_options_frame,
+        text="Generate Bleed",
+        variable=generate_bleed,
+    )
+    generate_bleed_checkbox.grid(column=0, row=1, sticky=tk.W)
+
+    sharpen_text_checkbox = ttk.Checkbutton(
+        pdf_generation_options_frame,
+        text="Sharpen Text (Experimental)",
+        variable=sharpen_text,
+    )
+    sharpen_text_checkbox.grid(column=0, row=2, sticky=tk.W)
+
+    draw_cut_lines_checkbox = ttk.Checkbutton(
+        pdf_generation_options_frame, text="Draw Cut Lines", variable=draw_cut_lines
+    )
+    draw_cut_lines_checkbox.grid(column=0, row=3, sticky=tk.W)
+
+    split_face_and_back_checkbox = ttk.Checkbutton(
+        pdf_generation_options_frame,
+        text="Split Face and Back",
+        variable=split_face_and_back,
+    )
+    split_face_and_back_checkbox.grid(column=0, row=4, sticky=tk.W)
 
     arrange_into_pdf_checkbox = ttk.Checkbutton(
-        boolean_options_frame, text="Arrange Images into PDF", variable=arrange_into_pdf
+        pdf_generation_options_frame, text="Arrange Images into PDF", variable=arrange_into_pdf
     )
-    arrange_into_pdf_checkbox.grid(column=0, row=9, sticky=tk.W)
+    arrange_into_pdf_checkbox.grid(column=0, row=5, sticky=tk.W)
 
     # Create a button to start the script
     def start_script_wrapper():
@@ -256,7 +265,7 @@ def main():
     start_button = ttk.Button(
         main_frame, text="Start script", command=start_script_wrapper
     )
-    start_button.grid(column=0, row=18, sticky=tk.W)
+    start_button.grid(column=0, row=20, sticky=tk.W)
 
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
