@@ -147,10 +147,19 @@ def process_container(
             # Create a subfolder for this container
             sub_dir = os.path.join(output_directory, f"container_{obj['GUID']}")
             os.makedirs(sub_dir, exist_ok=True)
-            process_container(obj, sub_dir, blacklist)
+            images.extend(
+                process_container(
+                    obj,
+                    process_nested_containers,
+                    blacklist,
+                    output_directory,
+                    cachepath,
+                )
+            )
         else:
             logger.warning(f"Unknown object type: {obj_name}")
-        return images
+
+    return images
 
 
 def load_images(output_directory: str) -> list[dict]:
