@@ -128,7 +128,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
 
 def process_container(
     container, process_nested_containers, blacklist, output_directory, cachepath: str
-):
+) -> list[dict]:
     object_states = container.get("ObjectStates", [])
 
     images = []
@@ -153,7 +153,7 @@ def process_container(
         return images
 
 
-def load_images(output_directory: str) -> list[Image.Image]:
+def load_images(output_directory: str) -> list[dict]:
     images = []
     image_files = sorted(
         [
@@ -167,7 +167,11 @@ def load_images(output_directory: str) -> list[Image.Image]:
     )
     for filename in image_files:
         image = Image.open(f"{output_directory}/{filename}")
-        images.append(image)
+        if "_face" in filename:
+            images.append({"face": image})
+        elif "_back" in filename:
+            images.append({"back": image})
+
     return images
 
 
@@ -223,18 +227,8 @@ def start_script(
 
     if load_images_from_directory:
         logger.info("Loading images from directory")
-        if split_face_and_back:
-            face_images = load_images(f"{output_directory}/img/face_images")
-            logger.info(
-                f"Successfully loaded {len(face_images)} face images from directory"
-            )
-            back_images = load_images(f"{output_directory}/img/back_images")
-            logger.info(
-                f"Successfully loaded {len(back_images)} back images from directory"
-            )
-        else:
-            images = load_images(f"{output_directory}/img")
-            logger.info(f"Successfully loaded {len(images)} images from directory")
+        images = load_images(f"{output_directory}/img")
+        logger.info(f"Successfully loaded {len(images)} images from directory")
     else:
         with open(filepath, "r") as file:
             save_object_data = json.load(file)
@@ -248,28 +242,13 @@ def start_script(
             cachepath,
         )
         logger.info(f"Successfully loaded {len(images)} images")
-        if split_face_and_back:
-            face_images = [image["face"] for image in images if "face" in image]
-            back_images = [image["back"] for image in images if "back" in image]
-            logger.info(f"Successfully separated {len(face_images)} face images")
-            logger.info(f"Successfully separated {len(back_images)} back images")
 
     if save_images:
         logger.info("Saving images")
-        if split_face_and_back:
-            os.makedirs(f"{output_directory}/img/face_images", exist_ok=True)
-            os.makedirs(f"{output_directory}/img/back_images", exist_ok=True)
-
-            for idx, image in enumerate(face_images):
-                image.save(f"{output_directory}/img/face_images/card_{idx}_face.png")
-            for idx, image in enumerate(back_images):
-                image.save(f"{output_directory}/img/back_images/card_{idx}_back.png")
-        else:
-            os.makedirs(f"{output_directory}/img", exist_ok=True)
-
-            for idx, image in enumerate(images):
-                for key, value in image.items():
-                    value.save(f"{output_directory}/img/card_{idx}_{key}.png")
+        os.makedirs(f"{output_directory}/img", exist_ok=True)
+        for idx, image in enumerate(images):
+            for key, value in image.items():
+                value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
 
     if arrange_into_pdf:
@@ -284,6 +263,8 @@ def start_script(
         logger.debug(f"image_size: {image_size}")
 
         if split_face_and_back:
+            face_images = [image["face"] for image in images if "face" in image]
+            back_images = [image["back"] for image in images if "back" in image]
             logger.info("Arranging images into PDF with separate face and back images")
             for i, images in enumerate([face_images, back_images]):
                 generate_pdf(
@@ -300,9 +281,13 @@ def start_script(
                     filename=f"output_face.pdf" if i == 0 else "output_back.pdf",
                 )
         else:
+            logger.debug("images: ", images)
+            images_list = [image["face"] for image in images if "face" in image]
+            images_list.extend([image["back"] for image in images if "back" in image])
+            logger.debug("images: ", images)
             logger.info("Arranging images into PDF")
             generate_pdf(
-                images,
+                images_list,
                 output_directory,
                 sheet_size,
                 image_length,
