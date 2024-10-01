@@ -182,7 +182,6 @@ def start_script(
     dpi: int,
     verbose: bool,
     process_nested_containers: bool,
-    include_card_backs: bool,
     exclude_card_urls: bool,
     generate_bleed: bool,
     sharpen_text: bool,
@@ -207,7 +206,6 @@ def start_script(
     logger.debug(f"dpi: {dpi}")
     logger.debug(f"verbose: {verbose}")
     logger.debug(f"process_nested_containers: {process_nested_containers}")
-    logger.debug(f"include_card_backs: {include_card_backs}")
     logger.debug(f"exclude_card_urls: {exclude_card_urls}")
     logger.debug(f"generate_bleed: {generate_bleed}")
     logger.debug(f"sharpen_text: {sharpen_text}")
