@@ -136,6 +136,7 @@ def generate_pdf(
     filename: str,
     cut_lines_on_margin_only: bool,
     bleed_size: float = 2.0,
+    no_cut_lines_on_last_sheet: bool = False,
 ):
     """
     images: list, a list of PIL Image objects representing the cards
@@ -213,7 +214,11 @@ def generate_pdf(
     for i in range(num_sheets):
         sheet = Image.new("RGB", converted_sheet_size, "white")
 
-        if draw_cut_lines and cut_lines_on_margin_only:
+        if (
+            draw_cut_lines
+            and cut_lines_on_margin_only
+            and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
+        ):
             draw_cut_lines_on_sheet(
                 generate_bleed,
                 converted_card_length,
@@ -258,7 +263,11 @@ def generate_pdf(
             )
             sheet.paste(card, (x, y))
 
-        if draw_cut_lines and not cut_lines_on_margin_only:
+        if (
+            draw_cut_lines
+            and not cut_lines_on_margin_only
+            and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
+        ):
             draw_cut_lines_on_sheet(
                 generate_bleed,
                 converted_card_length,

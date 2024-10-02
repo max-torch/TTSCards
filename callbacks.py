@@ -207,6 +207,7 @@ def start_script(
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
     cut_lines_on_margin_only: bool,
+    no_cut_lines_on_last_sheet: bool,
 ) -> None:
     if os.getenv("DEBUG_MODE", "false").lower() == "true":
         logger.setLevel(logging.DEBUG)
@@ -294,6 +295,7 @@ def start_script(
                     gutter_margin_size,
                     filename=f"output_face.pdf" if i == 0 else "output_back.pdf",
                     cut_lines_on_margin_only=cut_lines_on_margin_only,
+                    no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
                 )
         else:
             logger.debug("images: ", images)
@@ -314,4 +316,5 @@ def start_script(
                 gutter_margin_size,
                 filename="output.pdf",
                 cut_lines_on_margin_only=cut_lines_on_margin_only,
+                no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
             )
