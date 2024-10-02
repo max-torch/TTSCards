@@ -76,9 +76,9 @@ def sharpen_text_on_image(image: Image.Image) -> Image.Image:
     image_cv = image_cv * (1 - mask) + sharpened * mask
 
     # Convert the image back to PIL Image format
-    image_pil = Image.fromarray(image_cv)
+    sharpened_image = Image.fromarray(image_cv)
 
-    return image_pil
+    return sharpened_image
 
 
 def draw_cut_lines_on_sheet(
