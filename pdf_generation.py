@@ -1,9 +1,12 @@
+from collections import namedtuple
 import logging
 import os
 import webbrowser
 
+import cv2
+import numpy as np
 from PIL import Image, ImageDraw
-from collections import namedtuple
+import pytesseract
 
 
 Size = namedtuple("Size", ["width", "length"])
@@ -45,8 +48,37 @@ def generate_bleed_for_image(image: Image.Image, bleed_size: int) -> Image.Image
     return new_image
 
 
-def sharpen_text_on_image(image: Image) -> Image:
-    pass
+def sharpen_text_on_image(image: Image.Image) -> Image.Image:
+    # Convert PIL Image to OpenCV format
+    image_cv = np.array(image)
+
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image_cv, cv2.COLOR_BGR2GRAY)
+
+    # Use Tesseract to detect text regions
+    data = pytesseract.image_to_data(gray, output_type=pytesseract.Output.DICT)
+    n_boxes = len(data["level"])
+    mask = np.zeros_like(image_cv)
+    for i in range(n_boxes):
+        (x, y, w, h) = (
+            data["left"][i],
+            data["top"][i],
+            data["width"][i],
+            data["height"][i],
+        )
+        mask[y : y + h, x : x + w] = 1
+
+    # Sharpen the entire image
+    blurred = cv2.GaussianBlur(image_cv, (3, 3), 0)
+    sharpened = cv2.addWeighted(image_cv, 2.0, blurred, -1.0, 0)
+
+    # Apply sharpening to only the text regions
+    image_cv = image_cv * (1 - mask) + sharpened * mask
+
+    # Convert the image back to PIL Image format
+    image_pil = Image.fromarray(image_cv)
+
+    return image_pil
 
 
 def draw_cut_lines_on_sheet(
@@ -243,13 +275,13 @@ def generate_pdf(
             # Resize the card to the desired length while maintaining aspect ratio
             card = card.resize(no_bleed_card_size, Image.LANCZOS)
 
-            # Generate bleed for the card
-            if generate_bleed:
-                card = generate_bleed_for_image(card, converted_bleed_size)
-
             # Sharpen text on the card
             if sharpen_text:
                 card = sharpen_text_on_image(card)
+
+            # Generate bleed for the card
+            if generate_bleed:
+                card = generate_bleed_for_image(card, converted_bleed_size)
 
             # Paste the card onto the sheet
             x = start_x + (j % num_cards_x) * (
