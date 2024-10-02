@@ -49,6 +49,79 @@ def sharpen_text_on_image(image: Image) -> Image:
     pass
 
 
+def draw_cut_lines_on_sheet(
+    generate_bleed,
+    converted_card_length,
+    converted_sheet_size,
+    converted_gutter_margin_size,
+    card_width,
+    no_bleed_card_size,
+    converted_bleed_size,
+    num_cards_x,
+    num_cards_y,
+    start_x,
+    start_y,
+    sheet,
+):
+    draw = ImageDraw.Draw(sheet, "RGBA")
+    line_color = (0, 0, 0, 128)
+    line_width = 1
+    small_margin = 5  # Small margin from the edges of the sheet in pixels
+
+    # Draw horizontal cut lines at the top edges of each card, considering the number of cards
+    bleed_adjustment = converted_bleed_size if generate_bleed else 0
+
+    # top edge of cards
+    for j in range(num_cards_y):
+        y = (
+            start_y
+            + bleed_adjustment
+            + j * (converted_card_length + converted_gutter_margin_size)
+        )
+        draw.line(
+            [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
+            fill=line_color,
+            width=line_width,
+        )
+
+        # bottom edge of cards
+    for j in range(num_cards_y):
+        y = (
+            start_y
+            + bleed_adjustment
+            + no_bleed_card_size.length
+            + j * (converted_card_length + converted_gutter_margin_size)
+        )
+        draw.line(
+            [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
+            fill=line_color,
+            width=line_width,
+        )
+
+        # left edge of cards
+    for j in range(num_cards_x):
+        x = start_x + bleed_adjustment + j * (card_width + converted_gutter_margin_size)
+        draw.line(
+            [(x, small_margin), (x, converted_sheet_size[1] - small_margin)],
+            fill=line_color,
+            width=line_width,
+        )
+
+        # right edge of cards
+    for j in range(num_cards_x):
+        x = (
+            start_x
+            + bleed_adjustment
+            + no_bleed_card_size.width
+            + j * (card_width + converted_gutter_margin_size)
+        )
+        draw.line(
+            [(x, small_margin), (x, converted_sheet_size[1] - small_margin)],
+            fill=line_color,
+            width=line_width,
+        )
+
+
 def generate_pdf(
     images: list[Image.Image],
     output_dir: str,
@@ -61,6 +134,7 @@ def generate_pdf(
     sharpen_text: bool,
     gutter_margin_size: float,
     filename: str,
+    cut_lines_on_margin_only: bool,
     bleed_size: float = 2.0,
 ):
     """
@@ -98,6 +172,7 @@ def generate_pdf(
     # Save the card size before adding bleed
     no_bleed_card_size = Size(card_width, converted_card_length)
 
+    converted_bleed_size = 0
     if generate_bleed:
         converted_bleed_size = int(bleed_size * dpi / 25.4)
         logger.debug(f"Converted bleed size: {converted_bleed_size}")
@@ -138,6 +213,22 @@ def generate_pdf(
     for i in range(num_sheets):
         sheet = Image.new("RGB", converted_sheet_size, "white")
 
+        if draw_cut_lines and cut_lines_on_margin_only:
+            draw_cut_lines_on_sheet(
+                generate_bleed,
+                converted_card_length,
+                converted_sheet_size,
+                converted_gutter_margin_size,
+                card_width,
+                no_bleed_card_size,
+                converted_bleed_size,
+                num_cards_x,
+                num_cards_y,
+                start_x,
+                start_y,
+                sheet,
+            )
+
         for j in range(num_cards_x * num_cards_y):
             if i * num_cards_x * num_cards_y + j >= len(images):
                 break
@@ -167,68 +258,21 @@ def generate_pdf(
             )
             sheet.paste(card, (x, y))
 
-        if draw_cut_lines:
-            draw = ImageDraw.Draw(sheet, "RGBA")
-            line_color = (0, 0, 0, 128)
-            line_width = 2
-            small_margin = 5  # Small margin from the edges of the sheet in pixels
-
-            # Draw horizontal cut lines at the top edges of each card, considering the number of cards
-            bleed_adjustment = converted_bleed_size if generate_bleed else 0
-
-            # top edge of cards
-            for j in range(num_cards_y):
-                y = (
-                    start_y
-                    + bleed_adjustment
-                    + j * (converted_card_length + converted_gutter_margin_size)
-                )
-                draw.line(
-                    [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
-                    fill=line_color,
-                    width=line_width,
-                )
-
-            # bottom edge of cards
-            for j in range(num_cards_y):
-                y = (
-                    start_y
-                    + bleed_adjustment
-                    + no_bleed_card_size.length
-                    + j * (converted_card_length + converted_gutter_margin_size)
-                )
-                draw.line(
-                    [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
-                    fill=line_color,
-                    width=line_width,
-                )
-
-            # left edge of cards
-            for j in range(num_cards_x):
-                x = (
-                    start_x
-                    + bleed_adjustment
-                    + j * (card_width + converted_gutter_margin_size)
-                )
-                draw.line(
-                    [(x, small_margin), (x, converted_sheet_size[1] - small_margin)],
-                    fill=line_color,
-                    width=line_width,
-                )
-
-            # right edge of cards
-            for j in range(num_cards_x):
-                x = (
-                    start_x
-                    + bleed_adjustment
-                    + no_bleed_card_size.width
-                    + j * (card_width + converted_gutter_margin_size)
-                )
-                draw.line(
-                    [(x, small_margin), (x, converted_sheet_size[1] - small_margin)],
-                    fill=line_color,
-                    width=line_width,
-                )
+        if draw_cut_lines and not cut_lines_on_margin_only:
+            draw_cut_lines_on_sheet(
+                generate_bleed,
+                converted_card_length,
+                converted_sheet_size,
+                converted_gutter_margin_size,
+                card_width,
+                no_bleed_card_size,
+                converted_bleed_size,
+                num_cards_x,
+                num_cards_y,
+                start_x,
+                start_y,
+                sheet,
+            )
 
         sheets.append(sheet)
 

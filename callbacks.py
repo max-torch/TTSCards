@@ -206,6 +206,7 @@ def start_script(
     save_images: bool,
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
+    cut_lines_on_margin_only: bool,
 ) -> None:
     if os.getenv("DEBUG_MODE", "false").lower() == "true":
         logger.setLevel(logging.DEBUG)
@@ -230,6 +231,7 @@ def start_script(
     logger.debug(f"save_images: {save_images}")
     logger.debug(f"load_images_from_directory: {load_images_from_directory}")
     logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
+    logger.debug(f"cut_lines_on_margin_only: {cut_lines_on_margin_only}")
 
     output_directory = "./output"
     os.makedirs(output_directory, exist_ok=True)
@@ -291,6 +293,7 @@ def start_script(
                     sharpen_text,
                     gutter_margin_size,
                     filename=f"output_face.pdf" if i == 0 else "output_back.pdf",
+                    cut_lines_on_margin_only=cut_lines_on_margin_only,
                 )
         else:
             logger.debug("images: ", images)
@@ -310,4 +313,5 @@ def start_script(
                 sharpen_text,
                 gutter_margin_size,
                 filename="output.pdf",
+                cut_lines_on_margin_only=cut_lines_on_margin_only,
             )

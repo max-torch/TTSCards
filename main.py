@@ -167,6 +167,7 @@ def main():
     save_images = tk.BooleanVar()
     load_images_from_directory = tk.BooleanVar()
     arrange_into_pdf = tk.BooleanVar()
+    cut_lines_on_margin_only = tk.BooleanVar()
 
     boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
     boolean_options_frame.grid(column=0, row=9, rowspan=5, sticky=tk.W)
@@ -205,7 +206,7 @@ def main():
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
     )
-    pdf_generation_options_frame.grid(column=0, row=15, rowspan=5, sticky=tk.W)
+    pdf_generation_options_frame.grid(column=0, row=15, rowspan=6, sticky=tk.W)
 
     generate_bleed_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -226,17 +227,24 @@ def main():
     )
     draw_cut_lines_checkbox.grid(column=0, row=3, sticky=tk.W)
 
+    cut_lines_on_margin_only_checkbox = ttk.Checkbutton(
+        pdf_generation_options_frame,
+        text="Cut Lines on Margin Only",
+        variable=cut_lines_on_margin_only,
+    )
+    cut_lines_on_margin_only_checkbox.grid(column=0, row=4, sticky=tk.W)
+
     split_face_and_back_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
         text="Split Face and Back",
         variable=split_face_and_back,
     )
-    split_face_and_back_checkbox.grid(column=0, row=4, sticky=tk.W)
+    split_face_and_back_checkbox.grid(column=0, row=5, sticky=tk.W)
 
     arrange_into_pdf_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame, text="Arrange Images into PDF", variable=arrange_into_pdf
     )
-    arrange_into_pdf_checkbox.grid(column=0, row=5, sticky=tk.W)
+    arrange_into_pdf_checkbox.grid(column=0, row=6, sticky=tk.W)
 
     # Create a button to start the script
     def start_script_wrapper():
@@ -260,12 +268,13 @@ def main():
             save_images.get(),
             load_images_from_directory.get(),
             arrange_into_pdf.get(),
+            cut_lines_on_margin_only.get(),
         )
 
     start_button = ttk.Button(
         main_frame, text="Start script", command=start_script_wrapper
     )
-    start_button.grid(column=0, row=20, sticky=tk.W)
+    start_button.grid(column=0, row=21, sticky=tk.W)
 
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
