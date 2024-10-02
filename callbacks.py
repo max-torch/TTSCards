@@ -298,10 +298,8 @@ def start_script(
                     no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
                 )
         else:
-            logger.debug("images: ", images)
             images_list = [image["face"] for image in images if "face" in image]
             images_list.extend([image["back"] for image in images if "back" in image])
-            logger.debug("images: ", images)
             logger.info("Arranging images into PDF")
             generate_pdf(
                 images_list,
