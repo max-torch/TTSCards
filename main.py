@@ -11,7 +11,7 @@ def main():
     """
     TTS Object to PDF GUI Application
 
-    This module provides a graphical user interface (GUI) for converting Tabletop Simulator (TTS) objects to PDF files. 
+    This module provides a graphical user interface (GUI) for converting Tabletop Simulator (TTS) objects to PDF files.
     The GUI allows users to select TTS object files, configure various settings, and start the conversion process.
 
     The main features include:
@@ -50,9 +50,16 @@ def main():
 
     # Create a button for selecting the file
     def select_file():
+        initial_dir = (
+            os.path.dirname(filepath.get())
+            if filepath.get() != "No file selected"
+            else os.getcwd()
+        )
         filepath.set(
             filedialog.askopenfilename(
-                filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
+                initialdir=initial_dir,
+                title="Select TTS Object file",
+                filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             )
         )
         with open("filepath.txt", "w") as f:
@@ -268,7 +275,9 @@ def main():
     split_face_and_back_checkbox.grid(column=0, row=6, sticky=tk.W)
 
     arrange_into_pdf_checkbox = ttk.Checkbutton(
-        pdf_generation_options_frame, text="Arrange Images into PDF", variable=arrange_into_pdf
+        pdf_generation_options_frame,
+        text="Arrange Images into PDF",
+        variable=arrange_into_pdf,
     )
     arrange_into_pdf_checkbox.grid(column=0, row=7, sticky=tk.W)
 
