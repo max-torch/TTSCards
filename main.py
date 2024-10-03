@@ -73,10 +73,10 @@ def main():
         )
         if selected_file:
             path.set(selected_file)
-            with open("filepath.txt", "w") as f:
-                f.write(path.get())
+            config["path"] = selected_file
+            save_user_settings(config)
 
-    def select_folder():
+    def select_images_folder():
         initial_dir = (
             os.path.dirname(path.get())
             if path.get() != "No file or folder selected"
@@ -88,12 +88,8 @@ def main():
         )
         if selected_folder:
             path.set(selected_folder)
-            with open("filepath.txt", "w") as f:
-                f.write(path.get())
-
-    if os.path.exists("filepath.txt"):
-        with open("filepath.txt", "r") as f:
-            path.set(f.read().strip())
+            config["path"] = selected_folder
+            save_user_settings(config)
 
     def change_bleed_width():
         bleed_width = simpledialog.askfloat(
@@ -117,6 +113,12 @@ def main():
             config["line_width"] = line_width
             save_user_settings(config)
 
+    def select_cache_folder():
+        selected_cachepath = filedialog.askdirectory()
+        if selected_cachepath:
+            config["cachepath"] = selected_cachepath
+            save_user_settings(config)
+
     # Create a menu bar
     menubar = tk.Menu(root)
     root.config(menu=menubar)
@@ -125,7 +127,7 @@ def main():
     file_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="File", menu=file_menu)
     file_menu.add_command(label="Select TTS Object file", command=select_file)
-    file_menu.add_command(label="Select Folder", command=select_folder)
+    file_menu.add_command(label="Select Images Folder", command=select_images_folder)
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.quit)
 
@@ -134,6 +136,9 @@ def main():
     menubar.add_cascade(label="Settings", menu=settings_menu)
     settings_menu.add_command(label="Change Bleed Width", command=change_bleed_width)
     settings_menu.add_command(label="Change Line Width", command=change_line_width)
+    settings_menu.add_command(
+        label="Select TTS mod images cache folder", command=select_cache_folder
+    )
 
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
@@ -142,37 +147,13 @@ def main():
     main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
 
-    # Display the selected file of folder path
+    # Display the selected file or folder path
     path_header_label = ttk.Label(main_frame, text="Selected file or folder:")
     path_header_label.grid(column=0, row=0, sticky=tk.W)
     path_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
     path_frame.grid(column=0, row=1, sticky=tk.W)
     path_label = ttk.Label(path_frame, textvariable=path, wraplength=400)
     path_label.grid(column=0, row=0, sticky=tk.W)
-
-    # Create a button for selecting the cache folder
-    cachepath = tk.StringVar()
-    if os.path.exists("cachepath.txt"):
-        with open("cachepath.txt", "r") as f:
-            cachepath.set(f.read().strip())
-
-    def select_cache_folder():
-        cachepath.set(filedialog.askdirectory())
-        with open("cachepath.txt", "w") as f:
-            f.write(cachepath.get())
-
-    select_cache_folder_button = ttk.Button(
-        main_frame,
-        text="Select TTS mod images cache folder",
-        command=select_cache_folder,
-    )
-    select_cache_folder_button.grid(column=0, row=2, sticky=tk.W)
-
-    # Display the selected cache folder path inside a white frame
-    cachepath_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
-    cachepath_frame.grid(column=0, row=3, sticky=tk.W)
-    cachepath_label = ttk.Label(cachepath_frame, textvariable=cachepath, wraplength=400)
-    cachepath_label.grid(column=0, row=0, sticky=tk.W)
 
     # Create radio buttons for the preset image size
     preset_image_size = tk.StringVar(value="standard")
@@ -362,7 +343,7 @@ def main():
         """Wrapper function to pass all the variables to the start_script function."""
         start_script(
             path.get(),
-            cachepath.get(),
+            config["cachepath"],
             preset_image_size.get(),
             custom_image_size.width.get(),
             custom_image_size.length.get(),
