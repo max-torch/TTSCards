@@ -14,8 +14,14 @@ Size = namedtuple("Size", ["width", "length"])
 
 def generate_bleed_for_image(image: Image.Image, bleed_size: int) -> Image.Image:
     """
-    image: PIL Image object, the image to generate bleed for
-    bleed_size: int, the size of the bleed in pixels
+    Generates a bleed for the given image by mirroring the edges.
+
+    Args:
+        image (PIL.Image.Image): The image to generate bleed for.
+        bleed_size (int): The size of the bleed in pixels.
+
+    Returns:
+        PIL.Image.Image: A new image with the bleed applied.
     """
     # Select rectangular regions at the four edges of the image
     left_region = image.crop((0, 0, bleed_size, image.height))
@@ -49,6 +55,15 @@ def generate_bleed_for_image(image: Image.Image, bleed_size: int) -> Image.Image
 
 
 def sharpen_text_on_image(image: Image.Image) -> Image.Image:
+    """
+    Sharpens the text regions in a given image using OpenCV and Tesseract.
+
+    Args:
+        image (Image.Image): A PIL Image object containing the image to be processed.
+
+    Returns:
+        Image.Image: A PIL Image object with sharpened text regions.
+    """
     # Convert PIL Image to OpenCV format
     image_cv = np.array(image)
 
@@ -95,6 +110,26 @@ def draw_cut_lines_on_sheet(
     start_y,
     sheet,
 ):
+    """
+    Draws cut lines on a sheet for card printing.
+
+    Parameters:
+    - generate_bleed (bool): Flag to determine if bleed should be generated.
+    - converted_card_length (int): Length of the card after conversion.
+    - converted_sheet_size (tuple): Size of the sheet after conversion (width, height).
+    - converted_gutter_margin_size (int): Size of the gutter margin after conversion.
+    - card_width (int): Width of the card.
+    - no_bleed_card_size (object): Size of the card without bleed (should have attributes `length` and `width`).
+    - converted_bleed_size (int): Size of the bleed after conversion.
+    - num_cards_x (int): Number of cards along the x-axis.
+    - num_cards_y (int): Number of cards along the y-axis.
+    - start_x (int): Starting x-coordinate for drawing.
+    - start_y (int): Starting y-coordinate for drawing.
+    - sheet (PIL.Image): The sheet image on which to draw the cut lines.
+
+    Returns:
+    None
+    """
     draw = ImageDraw.Draw(sheet, "RGBA")
     line_color = (0, 0, 0, 128)
     line_width = 1
@@ -171,18 +206,26 @@ def generate_pdf(
     no_cut_lines_on_last_sheet: bool = False,
 ):
     """
-    images: list, a list of PIL Image objects representing the cards
-    output_dir: str, the directory to save the generated PDF file
-    sheet_size: tuple, the size of the sheet in pixels at 300dpi
-    card_length: int, the length of the card in pixels at 300dpi
-    dpi: int, the desired DPI for the output PDF file
-    logger: logging.Logger, the logger object
-    draw_cut_lines: bool, whether to draw cut lines on the PDF
-    generate_bleed: bool, whether to generate bleed for each card
-    sharpen_text: bool, whether to sharpen text on the cards
-    gutter_margin_size: float, the size of the margin between cards in mm
-    filename: str, the name of the output PDF file
-    bleed_size: float, the size of the bleed in mm
+    Generate a PDF file from a list of images.
+
+    Args:
+        images (list[Image.Image]): A list of PIL Image objects representing the cards.
+        output_dir (str): The directory to save the generated PDF file.
+        sheet_size (tuple): The size of the sheet in pixels at 300dpi.
+        card_length (int): The length of the card in pixels at 300dpi.
+        dpi (int): The desired DPI for the output PDF file.
+        logger (logging.Logger): The logger object.
+        draw_cut_lines (bool): Whether to draw cut lines on the PDF.
+        generate_bleed (bool): Whether to generate bleed for each card.
+        sharpen_text (bool): Whether to sharpen text on the cards.
+        gutter_margin_size (float): The size of the margin between cards in mm.
+        filename (str): The name of the output PDF file.
+        cut_lines_on_margin_only (bool): Whether to draw cut lines only on the margin.
+        bleed_size (float, optional): The size of the bleed in mm. Defaults to 2.0.
+        no_cut_lines_on_last_sheet (bool, optional): Whether to omit cut lines on the last sheet. Defaults to False.
+
+    Returns:
+        None
     """
 
     # Convert card length, sheet size, and gutter margin size to pixels at the desired DPI

@@ -8,6 +8,24 @@ from callbacks import start_script
 
 
 def main():
+    """
+    TTS Object to PDF GUI Application
+
+    This module provides a graphical user interface (GUI) for converting Tabletop Simulator (TTS) objects to PDF files. 
+    The GUI allows users to select TTS object files, configure various settings, and start the conversion process.
+
+    The main features include:
+    - File selection for TTS object files and cache folders.
+    - Preset and custom image size options.
+    - Sheet size selection.
+    - Margin and DPI configuration.
+    - Various boolean options for processing and PDF generation.
+
+    The GUI is built using the Tkinter library and uses the ttk module for themed widgets.
+
+    Functions:
+        main(): Initializes and runs the GUI application.
+    """
     logger = logging.getLogger("main")
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()

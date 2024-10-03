@@ -27,6 +27,22 @@ logger.addHandler(handler)
 
 
 def download_image(url: str, blacklist: list[str], cache_folder: str) -> Image:
+    """
+    Downloads an image from a given URL, with caching and blacklist support.
+
+    Args:
+        url (str): The URL of the image to download.
+        blacklist (list[str]): A list of URLs that should be skipped.
+        cache_folder (str): The folder where cached images are stored.
+
+    Returns:
+        Image: The downloaded image, or None if the URL is blacklisted.
+
+    The function first checks if the URL is in the blacklist. If it is, it logs a debug message and returns None.
+    It then formats the URL to create a cache file name and checks if the image is already cached in the specified folder.
+    If the image is cached, it opens and returns the cached image. If not, it downloads the image, saves it to the cache folder,
+    and then returns the downloaded image.
+    """
     if url in blacklist:
         logger.debug(f"Skipping URL (blacklisted): {url}")
         return None
@@ -67,6 +83,18 @@ def download_image(url: str, blacklist: list[str], cache_folder: str) -> Image:
 def crop_from_sprite_sheet(
     sprite_sheet: Image, num_width: int, num_height: int, card_id: int
 ) -> Image:
+    """
+    Crop a specific card from a sprite sheet based on its ID.
+
+    Args:
+        sprite_sheet (Image): The sprite sheet image containing multiple cards.
+        num_width (int): The number of cards horizontally in the sprite sheet.
+        num_height (int): The number of cards vertically in the sprite sheet.
+        card_id (int): The ID of the card to be cropped. The last two digits of the ID are used to determine the card's position.
+
+    Returns:
+        Image: The cropped card image.
+    """
     # calculate the position of the card in the sprite sheet
     sheet_width, sheet_height = sprite_sheet.size
     card_width = sheet_width // num_width
@@ -88,6 +116,17 @@ def crop_from_sprite_sheet(
 
 
 def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
+    """
+    Processes a deck of cards, filtering out blacklisted items and caching images.
+
+    Args:
+        deck (dict): The deck of cards to process, expected to have a "ContainedObjects" key.
+        blacklist (list): A list of items to be excluded from processing.
+        cachepath (str): The path where cached images should be stored.
+
+    Returns:
+        list[dict]: A list of dictionaries containing processed card images.
+    """
     contained_objects = deck.get("ContainedObjects", {})
     images = []
     for card in contained_objects:
@@ -98,6 +137,17 @@ def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
 
 
 def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
+    """
+    Processes a card dictionary to download and split the sprite sheet for the deck.
+
+    Args:
+        card (dict): A dictionary containing card information, including "Nickname", "CardID", and "CustomDeck".
+        blacklist (list): A list of URLs to be blacklisted from downloading.
+        cachepath (str): The path to the cache directory for storing downloaded images.
+
+    Returns:
+        dict: A dictionary containing the processed card images with keys "face" and "back".
+    """
     nickname = card.get("Nickname", "")
     card_id = card.get("CardID", "")
     custom_deck = card.get("CustomDeck", {})
@@ -106,6 +156,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
     back_url = custom_deck[custom_deck_key].get("BackURL", "")
     num_width = custom_deck[custom_deck_key].get("NumWidth", 1)
     num_height = custom_deck[custom_deck_key].get("NumHeight", 1)
+    unique_back = custom_deck[custom_deck_key].get("UniqueBack", False)
 
     # Download and split the sprite sheet for the deck
     image = {}
@@ -118,12 +169,14 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
             image["face"] = card_face
 
     if back_url:
-        if face_url == back_url:
-            card_back = card_face
+        sprite_sheet = download_image(back_url, blacklist, cachepath)
+        # else:
+        if unique_back:
+            image["back"] = crop_from_sprite_sheet(
+                sprite_sheet, num_width, num_height, card_id + 1000
+            )
         else:
-            card_back = download_image(back_url, blacklist, cachepath)
-        if card_back:
-            image["back"] = card_back
+            image["back"] = sprite_sheet
 
     logger.info(f"Processed card: {nickname}")
     return image
@@ -132,6 +185,19 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
 def process_container(
     container, process_nested_containers, blacklist, output_directory, cachepath: str
 ) -> list[dict]:
+    """
+    Processes a container object and its nested objects, extracting images and handling different object types.
+
+    Args:
+        container (dict): The container object to process.
+        process_nested_containers (bool): Flag to determine if nested containers should be processed.
+        blacklist (list): List of blacklisted items to exclude from processing.
+        output_directory (str): Directory where output files will be saved.
+        cachepath (str): Path to the cache directory.
+
+    Returns:
+        list[dict]: A list of dictionaries containing image data extracted from the container.
+    """
     object_states = container.get("ObjectStates", [])
 
     images = []
@@ -166,6 +232,16 @@ def process_container(
 
 
 def load_images(output_directory: str) -> list[dict]:
+    """
+    Loads images from the specified output directory, sorts them, and categorizes them into 'face' and 'back' images.
+
+    Args:
+        output_directory (str): The directory where the image files are located.
+
+    Returns:
+        list[dict]: A list of dictionaries containing the loaded images. Each dictionary has a key 'face' or 'back'
+                    corresponding to the type of image.
+    """
     images = []
     image_files = sorted(
         [
@@ -209,6 +285,34 @@ def start_script(
     cut_lines_on_margin_only: bool,
     no_cut_lines_on_last_sheet: bool,
 ) -> None:
+    """
+    Starts the script to process images and arrange them into a PDF.
+
+    Args:
+        filepath (str): Path to the input file containing TTS Saved Object data.
+        cachepath (str): Path to the cache directory.
+        preset_image_size (tuple): Preset size of the images.
+        custom_image_size_width (int): Custom width of the images.
+        custom_image_size_length (int): Custom length of the images.
+        sheet_size (tuple): Size of the sheet for the PDF.
+        gutter_margin_size (float): Size of the gutter margin.
+        dpi (int): Dots per inch for the output PDF.
+        verbose (bool): Flag to enable verbose logging.
+        process_nested_containers (bool): Flag to process nested containers in the TTS Saved Object.
+        exclude_card_urls (bool): Flag to exclude card URLs from processing.
+        generate_bleed (bool): Flag to generate bleed for the images.
+        sharpen_text (bool): Flag to sharpen text in the images.
+        draw_cut_lines (bool): Flag to draw cut lines on the images.
+        split_face_and_back (bool): Flag to split face and back images into separate PDFs.
+        save_images (bool): Flag to save images to the output directory.
+        load_images_from_directory (bool): Flag to load images from a directory instead of URLs.
+        arrange_into_pdf (bool): Flag to arrange images into a PDF.
+        cut_lines_on_margin_only (bool): Flag to draw cut lines only on the margin.
+        no_cut_lines_on_last_sheet (bool): Flag to avoid drawing cut lines on the last sheet.
+
+    Returns:
+        None
+    """
     if os.getenv("DEBUG_MODE", "false").lower() == "true":
         logger.setLevel(logging.DEBUG)
     else:
@@ -263,7 +367,8 @@ def start_script(
         os.makedirs(f"{output_directory}/img", exist_ok=True)
         for idx, image in enumerate(images):
             for key, value in image.items():
-                value.save(f"{output_directory}/img/card_{idx}_{key}.png")
+                if value:
+                    value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
 
     if arrange_into_pdf:
