@@ -278,7 +278,7 @@ def start_script(
     generate_bleed: bool,
     sharpen_text: bool,
     draw_cut_lines: bool,
-    split_face_and_back: bool,
+    split_double_and_single: bool,
     save_images: bool,
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
@@ -332,7 +332,7 @@ def start_script(
     logger.debug(f"generate_bleed: {generate_bleed}")
     logger.debug(f"sharpen_text: {sharpen_text}")
     logger.debug(f"draw_cut_lines: {draw_cut_lines}")
-    logger.debug(f"split_face_and_back: {split_face_and_back}")
+    logger.debug(f"split_double_and_single: {split_double_and_single}")
     logger.debug(f"save_images: {save_images}")
     logger.debug(f"load_images_from_directory: {load_images_from_directory}")
     logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
@@ -382,11 +382,34 @@ def start_script(
         image_length = image_size[1]
         logger.debug(f"image_size: {image_size}")
 
-        if split_face_and_back:
-            face_images = [image["face"] for image in images if "face" in image]
-            back_images = [image["back"] for image in images if "back" in image]
-            logger.info("Arranging images into PDF with separate face and back images")
-            for i, images in enumerate([face_images, back_images]):
+        # Remove keys with None values
+        images = [{k: v for k, v in image.items() if v is not None} for image in images]
+
+        if split_double_and_single:
+            # if image dict has both face and back keys then it is a double sided card
+            double_sided_cards = [
+                image for image in images if "face" in image and "back" in image
+            ]
+            # if image dict has only face or only back key then it is a single sided card
+            single_sided_cards = [
+                image for image in images if ("face" in image) ^ ("back" in image)
+            ]
+
+            # Extract all images into a single list
+            double_sided_images = [
+                image[key] for image in double_sided_cards for key in ["face", "back"]
+            ]
+            single_sided_images = [
+                image[key]
+                for image in single_sided_cards
+                for key in ["face", "back"]
+                if key in image
+            ]
+
+            logger.info(
+                "Arranging images into separate PDFs for single and double sided cards"
+            )
+            for i, images in enumerate([single_sided_images, double_sided_images]):
                 generate_pdf(
                     images,
                     output_directory,
@@ -398,13 +421,17 @@ def start_script(
                     generate_bleed,
                     sharpen_text,
                     gutter_margin_size,
-                    filename=f"output_face.pdf" if i == 0 else "output_back.pdf",
+                    filename=f"output_single.pdf" if i == 0 else "output_double.pdf",
                     cut_lines_on_margin_only=cut_lines_on_margin_only,
                     no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
                 )
         else:
-            images_list = [image["face"] for image in images if "face" in image]
-            images_list.extend([image["back"] for image in images if "back" in image])
+            images_list = [
+                image[key]
+                for image in images
+                for key in ["face", "back"]
+                if key in image
+            ]
             logger.info("Arranging images into PDF")
             generate_pdf(
                 images_list,

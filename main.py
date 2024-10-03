@@ -188,7 +188,7 @@ def main():
     generate_bleed = tk.BooleanVar()
     sharpen_text = tk.BooleanVar()
     draw_cut_lines = tk.BooleanVar()
-    split_face_and_back = tk.BooleanVar()
+    split_double_and_single = tk.BooleanVar()
     save_images = tk.BooleanVar()
     load_images_from_directory = tk.BooleanVar()
     arrange_into_pdf = tk.BooleanVar()
@@ -267,12 +267,12 @@ def main():
     )
     no_cut_lines_on_last_sheet_checkbox.grid(column=0, row=5, sticky=tk.W)
 
-    split_face_and_back_checkbox = ttk.Checkbutton(
+    split_double_and_single_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
-        text="Split Face and Back",
-        variable=split_face_and_back,
+        text="Split Double-Sided and Single-Sided Cards",
+        variable=split_double_and_single,
     )
-    split_face_and_back_checkbox.grid(column=0, row=6, sticky=tk.W)
+    split_double_and_single_checkbox.grid(column=0, row=6, sticky=tk.W)
 
     arrange_into_pdf_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -299,7 +299,7 @@ def main():
             generate_bleed.get(),
             sharpen_text.get(),
             draw_cut_lines.get(),
-            split_face_and_back.get(),
+            split_double_and_single.get(),
             save_images.get(),
             load_images_from_directory.get(),
             arrange_into_pdf.get(),
