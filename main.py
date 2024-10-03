@@ -1,8 +1,9 @@
 from collections import namedtuple
+import json
 import logging
 import os
 import tkinter as tk
-from tkinter import ttk, filedialog
+from tkinter import ttk, filedialog, simpledialog
 
 from callbacks import start_script
 
@@ -34,6 +35,22 @@ def main():
     logger.addHandler(handler)
 
     logger.info("Loading GUI...")
+
+    def load_user_settings() -> dict:
+        if os.path.exists("config.json"):
+            with open("config.json", "r") as f:
+                return json.load(f)
+        else:
+            return {
+                "bleed_width": 3.0,
+                "line_width": 1,
+            }
+
+    config = load_user_settings()
+
+    def save_user_settings(config: dict):
+        with open("config.json", "w") as f:
+            json.dump(config, f, indent=4)
 
     # Create a root window
     root = tk.Tk()
@@ -78,6 +95,28 @@ def main():
         with open("filepath.txt", "r") as f:
             path.set(f.read().strip())
 
+    def change_bleed_width():
+        bleed_width = simpledialog.askfloat(
+            "Input",
+            "Enter bleed width:",
+            minvalue=0.0,
+            initialvalue=config["bleed_width"],
+        )
+        if bleed_width is not None:
+            config["bleed_width"] = bleed_width
+            save_user_settings(config)
+
+    def change_line_width():
+        line_width = simpledialog.askfloat(
+            "Input",
+            "Enter line width:",
+            minvalue=0,
+            initialvalue=config["line_width"],
+        )
+        if line_width is not None:
+            config["line_width"] = line_width
+            save_user_settings(config)
+
     # Create a menu bar
     menubar = tk.Menu(root)
     root.config(menu=menubar)
@@ -89,6 +128,12 @@ def main():
     file_menu.add_command(label="Select Folder", command=select_folder)
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.quit)
+
+    # Create a settings menu
+    settings_menu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Settings", menu=settings_menu)
+    settings_menu.add_command(label="Change Bleed Width", command=change_bleed_width)
+    settings_menu.add_command(label="Change Line Width", command=change_line_width)
 
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
@@ -337,6 +382,8 @@ def main():
             arrange_into_pdf.get(),
             cut_lines_on_margin_only.get(),
             no_cut_lines_on_last_sheet.get(),
+            bleed_width=config["bleed_width"],
+            line_width=int(config["line_width"]),
         )
 
     start_button = ttk.Button(

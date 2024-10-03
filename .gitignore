@@ -156,3 +156,5 @@ filepath.txt
 /output
 image_blacklist.txt
 /cache_test
+/temp_exclude
+/temp_include

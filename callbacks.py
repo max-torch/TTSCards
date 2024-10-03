@@ -285,6 +285,8 @@ def start_script(
     arrange_into_pdf: bool,
     cut_lines_on_margin_only: bool,
     no_cut_lines_on_last_sheet: bool,
+    bleed_width: float,
+    line_width: int,
 ) -> None:
     """
     Starts the script to process images and arrange them into a PDF.
@@ -311,6 +313,8 @@ def start_script(
         arrange_into_pdf (bool): Flag to arrange images into a PDF.
         cut_lines_on_margin_only (bool): Flag to draw cut lines only on the margin.
         no_cut_lines_on_last_sheet (bool): Flag to avoid drawing cut lines on the last sheet.
+        bleed_width (float): Width of the generated bleed.
+        line_width (int): Width of the cut lines.
 
     Returns:
         None
@@ -338,6 +342,9 @@ def start_script(
     logger.debug(f"save_images: {save_images}")
     logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
     logger.debug(f"cut_lines_on_margin_only: {cut_lines_on_margin_only}")
+    logger.debug(f"no_cut_lines_on_last_sheet: {no_cut_lines_on_last_sheet}")
+    logger.debug(f"bleed_width: {bleed_width}")
+    logger.debug(f"line_width: {line_width}")
 
     output_directory = "./output"
     os.makedirs(output_directory, exist_ok=True)
@@ -388,6 +395,8 @@ def start_script(
             filename=filename,
             cut_lines_on_margin_only=cut_lines_on_margin_only,
             no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
+            bleed_width=bleed_width,
+            line_width=line_width,
         )
 
     if arrange_into_pdf:

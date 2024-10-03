@@ -109,6 +109,7 @@ def draw_cut_lines_on_sheet(
     start_x,
     start_y,
     sheet,
+    line_width=1,
 ):
     """
     Draws cut lines on a sheet for card printing.
@@ -132,7 +133,8 @@ def draw_cut_lines_on_sheet(
     """
     draw = ImageDraw.Draw(sheet, "RGBA")
     line_color = (0, 0, 0, 128)
-    line_width = 1
+    print(f"line_width: {line_width}")
+    line_width = line_width
     small_margin = 5  # Small margin from the edges of the sheet in pixels
 
     # Draw horizontal cut lines at the top edges of each card, considering the number of cards
@@ -202,8 +204,9 @@ def generate_pdf(
     gutter_margin_size: float,
     filename: str,
     cut_lines_on_margin_only: bool,
-    bleed_size: float = 2.0,
     no_cut_lines_on_last_sheet: bool = False,
+    bleed_width: float = 1.5,
+    line_width: int = 1,
 ):
     """
     Generate a PDF file from a list of images.
@@ -250,7 +253,7 @@ def generate_pdf(
 
     converted_bleed_size = 0
     if generate_bleed:
-        converted_bleed_size = int(bleed_size * dpi / 25.4)
+        converted_bleed_size = int(bleed_width * dpi / 25.4)
         logger.debug(f"Converted bleed size: {converted_bleed_size}")
 
         # Calculate what the size of the first card would be after adding bleed
@@ -307,6 +310,7 @@ def generate_pdf(
                 start_x,
                 start_y,
                 sheet,
+                line_width,
             )
 
         for j in range(num_cards_x * num_cards_y):
@@ -356,6 +360,7 @@ def generate_pdf(
                 start_x,
                 start_y,
                 sheet,
+                line_width,
             )
 
         sheets.append(sheet)
