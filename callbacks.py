@@ -279,6 +279,8 @@ def start_script(
     sharpen_text: bool,
     draw_cut_lines: bool,
     split_double_and_single: bool,
+    double_only: bool,
+    single_only: bool,
     save_images: bool,
     load_images_from_directory: bool,
     arrange_into_pdf: bool,
@@ -303,7 +305,9 @@ def start_script(
         generate_bleed (bool): Flag to generate bleed for the images.
         sharpen_text (bool): Flag to sharpen text in the images.
         draw_cut_lines (bool): Flag to draw cut lines on the images.
-        split_face_and_back (bool): Flag to split face and back images into separate PDFs.
+        split_double_and_single (bool): Flag to split double-sided and single-sided cards into separate PDFs.
+        double_only (bool): Flag to include only double-sided cards.
+        single_only (bool): Flag to include only single-sided cards.
         save_images (bool): Flag to save images to the output directory.
         load_images_from_directory (bool): Flag to load images from a directory instead of URLs.
         arrange_into_pdf (bool): Flag to arrange images into a PDF.
@@ -385,6 +389,7 @@ def start_script(
         # Remove keys with None values
         images = [{k: v for k, v in image.items() if v is not None} for image in images]
 
+
         if split_double_and_single:
             # if image dict has both face and back keys then it is a double sided card
             double_sided_cards = [
@@ -394,7 +399,7 @@ def start_script(
             single_sided_cards = [
                 image for image in images if ("face" in image) ^ ("back" in image)
             ]
-
+        
             # Extract all images into a single list
             double_sided_images = [
                 image[key] for image in double_sided_cards for key in ["face", "back"]
@@ -405,13 +410,33 @@ def start_script(
                 for key in ["face", "back"]
                 if key in image
             ]
-
+        
             logger.info(
                 "Arranging images into separate PDFs for single and double sided cards"
             )
-            for i, images in enumerate([single_sided_images, double_sided_images]):
+        
+            if not double_only and not single_only:
+                # Generate both single-sided and double-sided PDFs
+                for i, images in enumerate([single_sided_images, double_sided_images]):
+                    generate_pdf(
+                        images,
+                        output_directory,
+                        sheet_size,
+                        image_length,
+                        dpi,
+                        logger,
+                        draw_cut_lines,
+                        generate_bleed,
+                        sharpen_text,
+                        gutter_margin_size,
+                        filename=f"output_single.pdf" if i == 0 else "output_double.pdf",
+                        cut_lines_on_margin_only=cut_lines_on_margin_only,
+                        no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
+                    )
+            elif double_only:
+                # Generate only double-sided PDF
                 generate_pdf(
-                    images,
+                    double_sided_images,
                     output_directory,
                     sheet_size,
                     image_length,
@@ -421,7 +446,24 @@ def start_script(
                     generate_bleed,
                     sharpen_text,
                     gutter_margin_size,
-                    filename=f"output_single.pdf" if i == 0 else "output_double.pdf",
+                    filename="output_double.pdf",
+                    cut_lines_on_margin_only=cut_lines_on_margin_only,
+                    no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
+                )
+            elif single_only:
+                # Generate only single-sided PDF
+                generate_pdf(
+                    single_sided_images,
+                    output_directory,
+                    sheet_size,
+                    image_length,
+                    dpi,
+                    logger,
+                    draw_cut_lines,
+                    generate_bleed,
+                    sharpen_text,
+                    gutter_margin_size,
+                    filename="output_single.pdf",
                     cut_lines_on_margin_only=cut_lines_on_margin_only,
                     no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
                 )
