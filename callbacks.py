@@ -264,7 +264,7 @@ def load_images(output_directory: str) -> list[dict]:
 
 
 def start_script(
-    filepath: str,
+    path: str,
     cachepath: str,
     preset_image_size: tuple,
     custom_image_size_width: int,
@@ -282,7 +282,6 @@ def start_script(
     double_only: bool,
     single_only: bool,
     save_images: bool,
-    load_images_from_directory: bool,
     arrange_into_pdf: bool,
     cut_lines_on_margin_only: bool,
     no_cut_lines_on_last_sheet: bool,
@@ -291,7 +290,7 @@ def start_script(
     Starts the script to process images and arrange them into a PDF.
 
     Args:
-        filepath (str): Path to the input file containing TTS Saved Object data.
+        path (str): Path to the input file containing TTS Saved Object data or folder containing images.
         cachepath (str): Path to the cache directory.
         preset_image_size (tuple): Preset size of the images.
         custom_image_size_width (int): Custom width of the images.
@@ -309,7 +308,6 @@ def start_script(
         double_only (bool): Flag to include only double-sided cards.
         single_only (bool): Flag to include only single-sided cards.
         save_images (bool): Flag to save images to the output directory.
-        load_images_from_directory (bool): Flag to load images from a directory instead of URLs.
         arrange_into_pdf (bool): Flag to arrange images into a PDF.
         cut_lines_on_margin_only (bool): Flag to draw cut lines only on the margin.
         no_cut_lines_on_last_sheet (bool): Flag to avoid drawing cut lines on the last sheet.
@@ -322,7 +320,7 @@ def start_script(
     else:
         logger.setLevel(logging.INFO) if verbose else logger.setLevel(logging.WARNING)
 
-    logger.debug(f"filepath: {filepath}")
+    logger.debug(f"path: {path}")
     logger.debug(f"cachepath: {cachepath}")
     logger.debug(f"preset_image_size: {preset_image_size}")
     logger.debug(f"custom_image_size_width: {custom_image_size_width}")
@@ -338,7 +336,6 @@ def start_script(
     logger.debug(f"draw_cut_lines: {draw_cut_lines}")
     logger.debug(f"split_double_and_single: {split_double_and_single}")
     logger.debug(f"save_images: {save_images}")
-    logger.debug(f"load_images_from_directory: {load_images_from_directory}")
     logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
     logger.debug(f"cut_lines_on_margin_only: {cut_lines_on_margin_only}")
 
@@ -348,14 +345,13 @@ def start_script(
     with open("image_blacklist.txt", "r") as file:
         blacklist = file.read().splitlines() if exclude_card_urls else []
 
-    if load_images_from_directory:
+    if os.path.isdir(path):
         logger.info("Loading images from directory")
-        images = load_images(f"{output_directory}/img")
+        images = load_images(path)
         logger.info(f"Successfully loaded {len(images)} images from directory")
-    else:
-        with open(filepath, "r") as file:
+    elif os.path.isfile(path):
+        with open(path, "r") as file:
             save_object_data = json.load(file)
-
         logger.info("Loading images from URLs in TTS Saved Object")
         images = process_container(
             save_object_data,
@@ -365,6 +361,8 @@ def start_script(
             cachepath,
         )
         logger.info(f"Successfully loaded {len(images)} images")
+    else:
+        logger.error(f"Invalid path: {path}")
 
     if save_images:
         logger.info("Saving images")

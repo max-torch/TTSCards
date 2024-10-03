@@ -41,6 +41,55 @@ def main():
     style = ttk.Style()
     style.theme_use("alt")
 
+    path = tk.StringVar(value="No file or folder selected")
+
+    def select_file():
+        initial_dir = (
+            os.path.dirname(path.get())
+            if path.get() != "No file or folder selected"
+            else os.getcwd()
+        )
+        selected_file = filedialog.askopenfilename(
+            initialdir=initial_dir,
+            title="Select TTS Object file",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+        )
+        if selected_file:
+            path.set(selected_file)
+            with open("filepath.txt", "w") as f:
+                f.write(path.get())
+
+    def select_folder():
+        initial_dir = (
+            os.path.dirname(path.get())
+            if path.get() != "No file or folder selected"
+            else os.getcwd()
+        )
+        selected_folder = filedialog.askdirectory(
+            initialdir=initial_dir,
+            title="Select Folder",
+        )
+        if selected_folder:
+            path.set(selected_folder)
+            with open("filepath.txt", "w") as f:
+                f.write(path.get())
+
+    if os.path.exists("filepath.txt"):
+        with open("filepath.txt", "r") as f:
+            path.set(f.read().strip())
+
+    # Create a menu bar
+    menubar = tk.Menu(root)
+    root.config(menu=menubar)
+
+    # Create a file menu
+    file_menu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="File", menu=file_menu)
+    file_menu.add_command(label="Select TTS Object file", command=select_file)
+    file_menu.add_command(label="Select Folder", command=select_folder)
+    file_menu.add_separator()
+    file_menu.add_command(label="Exit", command=root.quit)
+
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
     main_frame.grid(column=0, row=0, sticky=("n", "w", "e", "s"))
@@ -48,38 +97,13 @@ def main():
     main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
 
-    # Create a button for selecting the file
-    def select_file():
-        initial_dir = (
-            os.path.dirname(filepath.get())
-            if filepath.get() != "No file selected"
-            else os.getcwd()
-        )
-        filepath.set(
-            filedialog.askopenfilename(
-                initialdir=initial_dir,
-                title="Select TTS Object file",
-                filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
-            )
-        )
-        with open("filepath.txt", "w") as f:
-            f.write(filepath.get())
-
-    filepath = tk.StringVar(value="No file selected")
-    if os.path.exists("filepath.txt"):
-        with open("filepath.txt", "r") as f:
-            filepath.set(f.read().strip())
-
-    select_file_button = ttk.Button(
-        main_frame, text="Select TTS Object file", command=select_file
-    )
-    select_file_button.grid(column=0, row=0, sticky=tk.W)
-
-    # Display the selected file path inside a white frame
-    filepath_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
-    filepath_frame.grid(column=0, row=1, sticky=tk.W)
-    filepath_label = ttk.Label(filepath_frame, textvariable=filepath, wraplength=400)
-    filepath_label.grid(column=0, row=0, sticky=tk.W)
+    # Display the selected file of folder path
+    path_header_label = ttk.Label(main_frame, text="Selected file or folder:")
+    path_header_label.grid(column=0, row=0, sticky=tk.W)
+    path_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
+    path_frame.grid(column=0, row=1, sticky=tk.W)
+    path_label = ttk.Label(path_frame, textvariable=path, wraplength=400)
+    path_label.grid(column=0, row=0, sticky=tk.W)
 
     # Create a button for selecting the cache folder
     cachepath = tk.StringVar()
@@ -192,13 +216,11 @@ def main():
     double_only = tk.BooleanVar()
     single_only = tk.BooleanVar()
     save_images = tk.BooleanVar()
-    load_images_from_directory = tk.BooleanVar()
     arrange_into_pdf = tk.BooleanVar()
     cut_lines_on_margin_only = tk.BooleanVar()
     no_cut_lines_on_last_sheet = tk.BooleanVar()
-
     boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
-    boolean_options_frame.grid(column=0, row=9, rowspan=5, sticky=tk.W)
+    boolean_options_frame.grid(column=0, row=9, rowspan=4, sticky=tk.W)
 
     verbose_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Verbose Console Output", variable=verbose
@@ -223,13 +245,6 @@ def main():
         boolean_options_frame, text="Save Images to File", variable=save_images
     )
     save_images_checkbox.grid(column=0, row=3, sticky=tk.W)
-
-    load_images_from_directory_checkbox = ttk.Checkbutton(
-        boolean_options_frame,
-        text="Load Images from Directory",
-        variable=load_images_from_directory,
-    )
-    load_images_from_directory_checkbox.grid(column=0, row=4, sticky=tk.W)
 
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
@@ -301,7 +316,7 @@ def main():
     def start_script_wrapper():
         """Wrapper function to pass all the variables to the start_script function."""
         start_script(
-            filepath.get(),
+            path.get(),
             cachepath.get(),
             preset_image_size.get(),
             custom_image_size.width.get(),
@@ -319,7 +334,6 @@ def main():
             double_only.get(),
             single_only.get(),
             save_images.get(),
-            load_images_from_directory.get(),
             arrange_into_pdf.get(),
             cut_lines_on_margin_only.get(),
             no_cut_lines_on_last_sheet.get(),
