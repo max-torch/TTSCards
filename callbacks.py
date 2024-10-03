@@ -375,6 +375,23 @@ def start_script(
                     value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
 
+    def generate_pdf_wrapper(images, filename):
+        generate_pdf(
+            images,
+            output_directory,
+            sheet_size,
+            image_length,
+            dpi,
+            logger,
+            draw_cut_lines,
+            generate_bleed,
+            sharpen_text,
+            gutter_margin_size,
+            filename=filename,
+            cut_lines_on_margin_only=cut_lines_on_margin_only,
+            no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
+        )
+
     if arrange_into_pdf:
         sheet_size = SHEET_SIZES[sheet_size]
         # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
@@ -389,7 +406,6 @@ def start_script(
         # Remove keys with None values
         images = [{k: v for k, v in image.items() if v is not None} for image in images]
 
-
         if split_double_and_single:
             # if image dict has both face and back keys then it is a double sided card
             double_sided_cards = [
@@ -399,7 +415,7 @@ def start_script(
             single_sided_cards = [
                 image for image in images if ("face" in image) ^ ("back" in image)
             ]
-        
+
             # Extract all images into a single list
             double_sided_images = [
                 image[key] for image in double_sided_cards for key in ["face", "back"]
@@ -410,63 +426,21 @@ def start_script(
                 for key in ["face", "back"]
                 if key in image
             ]
-        
+
             logger.info(
                 "Arranging images into separate PDFs for single and double sided cards"
             )
-        
+
             if not double_only and not single_only:
                 # Generate both single-sided and double-sided PDFs
-                for i, images in enumerate([single_sided_images, double_sided_images]):
-                    generate_pdf(
-                        images,
-                        output_directory,
-                        sheet_size,
-                        image_length,
-                        dpi,
-                        logger,
-                        draw_cut_lines,
-                        generate_bleed,
-                        sharpen_text,
-                        gutter_margin_size,
-                        filename=f"output_single.pdf" if i == 0 else "output_double.pdf",
-                        cut_lines_on_margin_only=cut_lines_on_margin_only,
-                        no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
-                    )
+                generate_pdf_wrapper(single_sided_images, "output_single.pdf")
+                generate_pdf_wrapper(double_sided_images, "output_double.pdf")
             elif double_only:
                 # Generate only double-sided PDF
-                generate_pdf(
-                    double_sided_images,
-                    output_directory,
-                    sheet_size,
-                    image_length,
-                    dpi,
-                    logger,
-                    draw_cut_lines,
-                    generate_bleed,
-                    sharpen_text,
-                    gutter_margin_size,
-                    filename="output_double.pdf",
-                    cut_lines_on_margin_only=cut_lines_on_margin_only,
-                    no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
-                )
+                generate_pdf_wrapper(double_sided_images, "output_double.pdf")
             elif single_only:
                 # Generate only single-sided PDF
-                generate_pdf(
-                    single_sided_images,
-                    output_directory,
-                    sheet_size,
-                    image_length,
-                    dpi,
-                    logger,
-                    draw_cut_lines,
-                    generate_bleed,
-                    sharpen_text,
-                    gutter_margin_size,
-                    filename="output_single.pdf",
-                    cut_lines_on_margin_only=cut_lines_on_margin_only,
-                    no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
-                )
+                generate_pdf_wrapper(single_sided_images, "output_single.pdf")
         else:
             images_list = [
                 image[key]
@@ -475,18 +449,4 @@ def start_script(
                 if key in image
             ]
             logger.info("Arranging images into PDF")
-            generate_pdf(
-                images_list,
-                output_directory,
-                sheet_size,
-                image_length,
-                dpi,
-                logger,
-                draw_cut_lines,
-                generate_bleed,
-                sharpen_text,
-                gutter_margin_size,
-                filename="output.pdf",
-                cut_lines_on_margin_only=cut_lines_on_margin_only,
-                no_cut_lines_on_last_sheet=no_cut_lines_on_last_sheet,
-            )
+            generate_pdf_wrapper(images_list, "output.pdf")
