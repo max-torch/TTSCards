@@ -207,7 +207,7 @@ def process_bag(
             images.append(process_card(object, blacklist, cachepath))
         elif object.get("Name") == "Bag" and process_nested:
             logger.info(f"Processing bag: {object.get('Nickname', 'Unknown Bag')}")
-            images.extend(process_bag(object, blacklist, cachepath))
+            images.extend(process_bag(object, blacklist, cachepath, process_nested))
 
     return images
 
