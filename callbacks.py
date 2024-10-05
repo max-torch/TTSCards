@@ -182,48 +182,67 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
     return image
 
 
-def process_container(
-    container, process_nested_containers, blacklist, output_directory, cachepath: str
+def process_bag(
+    bag: dict, blacklist: list, cachepath: str, process_nested: bool
 ) -> list[dict]:
     """
-    Processes a container object and its nested objects, extracting images and handling different object types.
+    Processes a bag object, extracting images from contained objects.
 
     Args:
-        container (dict): The container object to process.
+        bag (dict): The bag object to process.
+        blacklist (list): List of blacklisted items to exclude from processing.
+        cachepath (str): Path to the cache directory.
+
+    Returns:
+        list[dict]: A list of dictionaries containing image data extracted from the bag.
+    """
+    contained_objects = bag.get("ContainedObjects", [])
+    images = []
+    for object in contained_objects:
+        if object.get("Name") == "Deck":
+            logger.info(f"Processing deck: {object.get('Nickname', 'Unknown Deck')}")
+            images.extend(process_deck(object, blacklist, cachepath))
+        elif object.get("Name") == "Card":
+            logger.info(f"Processing card: {object.get('Nickname', 'Unknown Card')}")
+            images.append(process_card(object, blacklist, cachepath))
+        elif object.get("Name") == "Bag" and process_nested:
+            logger.info(f"Processing bag: {object.get('Nickname', 'Unknown Bag')}")
+            images.extend(process_bag(object, blacklist, cachepath))
+
+    return images
+
+
+def process_tts_object(
+    tts_object, process_nested_containers, blacklist, cachepath: str
+) -> list[dict]:
+    """
+    Processes a TTS object and its nested objects, extracting images and handling different object types.
+    Can only handle objects of type "Deck", "Card", and "Bag".
+
+    Args:
+        tts_object (dict): The TTS object to process.
         process_nested_containers (bool): Flag to determine if nested containers should be processed.
         blacklist (list): List of blacklisted items to exclude from processing.
-        output_directory (str): Directory where output files will be saved.
         cachepath (str): Path to the cache directory.
 
     Returns:
         list[dict]: A list of dictionaries containing image data extracted from the container.
     """
-    object_states = container.get("ObjectStates", [])
+    object_states = tts_object.get("ObjectStates", [])
 
     images = []
-    for obj in object_states:
-        obj_name = obj.get("Name", "")
+    for state in object_states:
+        obj_name = state.get("Name", "")
         if obj_name == "Deck":  # Process deck
-            logger.info(f"Processing deck: {obj.get('Nickname', 'Unknown Deck')}")
-            images.extend(process_deck(obj, blacklist, cachepath))
+            logger.info(f"Processing deck: {state.get('Nickname', 'Unknown Deck')}")
+            images.extend(process_deck(state, blacklist, cachepath))
         elif obj_name == "Card":  # Process single card
-            logger.info(f"Processing card: {obj.get('Nickname', 'Unknown Card')}")
-            images.append(process_card(obj, blacklist))
+            logger.info(f"Processing card: {state.get('Nickname', 'Unknown Card')}")
+            images.append(process_card(state, blacklist))
         elif obj_name == "Bag":  # Process container (Bag)
-            logger.info(
-                f"Processing container: {obj.get('Nickname', 'Unknown Container')}"
-            )
-            # Create a subfolder for this container
-            sub_dir = os.path.join(output_directory, f"container_{obj['GUID']}")
-            os.makedirs(sub_dir, exist_ok=True)
+            logger.info(f"Processing bag: {state.get('Nickname', 'Unknown Bag')}")
             images.extend(
-                process_container(
-                    obj,
-                    process_nested_containers,
-                    blacklist,
-                    output_directory,
-                    cachepath,
-                )
+                process_bag(state, blacklist, cachepath, process_nested_containers)
             )
         else:
             logger.warning(f"Unknown object type: {obj_name}")
@@ -360,11 +379,10 @@ def start_script(
         with open(path, "r") as file:
             save_object_data = json.load(file)
         logger.info("Loading images from URLs in TTS Saved Object")
-        images = process_container(
+        images = process_tts_object(
             save_object_data,
             process_nested_containers,
             blacklist,
-            output_directory,
             cachepath,
         )
         logger.info(f"Successfully loaded {len(images)} images")
