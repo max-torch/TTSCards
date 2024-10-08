@@ -97,20 +97,20 @@ def sharpen_text_on_image(image: Image.Image) -> Image.Image:
 
 
 def draw_cut_lines_on_sheet(
-    generate_bleed,
-    converted_card_length,
-    converted_sheet_size,
-    converted_gutter_margin_size,
-    card_width,
-    no_bleed_card_size,
-    converted_bleed_size,
-    num_cards_x,
-    num_cards_y,
-    start_x,
-    start_y,
-    sheet,
-    line_width=1,
-):
+    generate_bleed: bool,
+    converted_card_length: int,
+    converted_sheet_size: tuple[int, int],
+    converted_gutter_margin_size: int,
+    card_width: int,
+    no_bleed_card_size: Size,
+    converted_bleed_size: int,
+    num_cards_x: int,
+    num_cards_y: int,
+    start_x: int,
+    start_y: int,
+    sheet: Image.Image,
+    line_width: int = 1,
+) -> None:
     """
     Draws cut lines on a sheet for card printing.
 
@@ -120,21 +120,20 @@ def draw_cut_lines_on_sheet(
     - converted_sheet_size (tuple): Size of the sheet after conversion (width, height).
     - converted_gutter_margin_size (int): Size of the gutter margin after conversion.
     - card_width (int): Width of the card.
-    - no_bleed_card_size (object): Size of the card without bleed (should have attributes `length` and `width`).
+    - no_bleed_card_size (Size): Size of the card without bleed (should have attributes `length` and `width`).
     - converted_bleed_size (int): Size of the bleed after conversion.
     - num_cards_x (int): Number of cards along the x-axis.
     - num_cards_y (int): Number of cards along the y-axis.
     - start_x (int): Starting x-coordinate for drawing.
     - start_y (int): Starting y-coordinate for drawing.
-    - sheet (PIL.Image): The sheet image on which to draw the cut lines.
+    - sheet (PIL.Image.Image): The sheet image on which to draw the cut lines.
+    - line_width (int, optional): Width of the cut lines. Defaults to 1.
 
     Returns:
     None
     """
     draw = ImageDraw.Draw(sheet, "RGBA")
     line_color = (0, 0, 0, 128)
-    print(f"line_width: {line_width}")
-    line_width = line_width
     small_margin = 5  # Small margin from the edges of the sheet in pixels
 
     # Draw horizontal cut lines at the top edges of each card, considering the number of cards
@@ -153,7 +152,7 @@ def draw_cut_lines_on_sheet(
             width=line_width,
         )
 
-        # bottom edge of cards
+    # bottom edge of cards
     for j in range(num_cards_y):
         y = (
             start_y
@@ -167,7 +166,7 @@ def draw_cut_lines_on_sheet(
             width=line_width,
         )
 
-        # left edge of cards
+    # left edge of cards
     for j in range(num_cards_x):
         x = start_x + bleed_adjustment + j * (card_width + converted_gutter_margin_size)
         draw.line(
@@ -176,7 +175,7 @@ def draw_cut_lines_on_sheet(
             width=line_width,
         )
 
-        # right edge of cards
+    # right edge of cards
     for j in range(num_cards_x):
         x = (
             start_x
