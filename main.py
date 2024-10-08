@@ -58,7 +58,8 @@ def main():
     style = ttk.Style()
     style.theme_use("alt")
 
-    path = tk.StringVar(value="No file or folder selected")
+    path_string = config["path"] if "path" in config else "No file or folder selected"
+    path = tk.StringVar(value=path_string)
 
     def select_file():
         initial_dir = (
