@@ -270,6 +270,12 @@ def generate_pdf(
         converted_sheet_size[1] - 2 * converted_gutter_margin_size
     ) // converted_card_length
 
+    if num_cards_x == 0 or num_cards_y == 0:
+        logger.error(
+            "Card dimensions or sheet dimensions are incorrect. Cannot fit any cards on the sheet."
+        )
+        return
+
     # Calculate the number of sheets required to fit all the cards
     num_sheets = (len(images) + num_cards_x * num_cards_y - 1) // (
         num_cards_x * num_cards_y
