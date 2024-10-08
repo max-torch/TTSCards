@@ -95,7 +95,7 @@ def main():
     def change_bleed_width():
         bleed_width = simpledialog.askfloat(
             "Input",
-            "Enter bleed width:",
+            "Enter bleed width (mm):",
             minvalue=0.0,
             initialvalue=config["bleed_width"],
         )
@@ -106,7 +106,7 @@ def main():
     def change_line_width():
         line_width = simpledialog.askfloat(
             "Input",
-            "Enter line width:",
+            "Enter line width (px):",
             minvalue=0,
             initialvalue=config["line_width"],
         )
