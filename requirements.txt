@@ -2,6 +2,3 @@ pillow
 numpy
 opencv-python
 pytesseract
-scipy
-pytest
-pytest-cov
