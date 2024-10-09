@@ -136,7 +136,7 @@ def main():
     settings_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Settings", menu=settings_menu)
     settings_menu.add_command(label="Change Bleed Width", command=change_bleed_width)
-    settings_menu.add_command(label="Change Line Width", command=change_line_width)
+    settings_menu.add_command(label="Change Cutting Line Width", command=change_line_width)
     settings_menu.add_command(
         label="Select TTS mod images cache folder", command=select_cache_folder
     )
