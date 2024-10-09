@@ -368,8 +368,11 @@ def start_script(
     output_directory = "./output"
     os.makedirs(output_directory, exist_ok=True)
 
-    with open("image_blacklist.txt", "r") as file:
-        blacklist = file.read().splitlines() if exclude_card_urls else []
+    try:
+        with open("image_blacklist.txt", "r") as file:
+            blacklist = file.read().splitlines() if exclude_card_urls else []
+    except FileNotFoundError:
+        blacklist = []
 
     if os.path.isdir(path):
         logger.info("Loading images from directory")
