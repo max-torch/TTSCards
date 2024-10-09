@@ -156,3 +156,4 @@ image_blacklist.txt
 /temp_exclude
 /temp_include
 config.json
+/.idea
