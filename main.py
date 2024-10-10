@@ -345,8 +345,8 @@ def main():
     # Create a button to start the script
     def start_script_wrapper():
         """Wrapper function to pass all the variables to the start_script function."""
-
         def top_level_window_wrapper():
+            """Wrapper function to create a top-level window to indicate that the script is running."""
             try:
                 start_script(
                     path.get(),
