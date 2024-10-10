@@ -159,13 +159,13 @@ def main():
     path_header_label.grid(column=0, row=0, sticky=tk.W)
     path_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
     path_frame.grid(column=0, row=1, sticky=tk.W)
-    path_label = ttk.Label(path_frame, textvariable=path, wraplength=400)
+    path_label = ttk.Label(path_frame, textvariable=path, wraplength=250)
     path_label.grid(column=0, row=0, sticky=tk.W)
 
     # Create radio buttons for the preset image size
     preset_image_size = tk.StringVar(value="standard")
     image_size_frame = ttk.LabelFrame(main_frame, text="Preset Image Size")
-    image_size_frame.grid(column=0, row=5, sticky=tk.W)
+    image_size_frame.grid(column=0, row=2, sticky=tk.W)
 
     standard_radio = ttk.Radiobutton(
         image_size_frame,
@@ -186,7 +186,7 @@ def main():
     CustomImageSize = namedtuple("CustomImageSize", ["width", "length"])
     custom_image_size = CustomImageSize(tk.IntVar(), tk.IntVar())
     custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size")
-    custom_image_size_frame.grid(column=0, row=6, sticky=tk.W)
+    custom_image_size_frame.grid(column=0, row=3, sticky=tk.W)
 
     custom_size_width_label = ttk.Label(custom_image_size_frame, text="Width:")
     custom_size_width_label.grid(column=0, row=0, sticky=tk.W)
@@ -205,7 +205,7 @@ def main():
     # Create radio buttons for the sheet size
     sheet_size = tk.StringVar(value="Letter")
     sheet_size_frame = ttk.LabelFrame(main_frame, text="Sheet Size")
-    sheet_size_frame.grid(column=0, row=7, sticky=tk.W)
+    sheet_size_frame.grid(column=0, row=4, sticky=tk.W)
 
     a4_radio = ttk.Radiobutton(
         sheet_size_frame, text="A4", variable=sheet_size, value="A4"
@@ -224,7 +224,7 @@ def main():
     gutter_margin_size = tk.DoubleVar(value=3.175)
     dpi = tk.IntVar(value=360)
     margin_dpi_frame = ttk.LabelFrame(main_frame, text="Margin and DPI")
-    margin_dpi_frame.grid(column=0, row=8, sticky=tk.W)
+    margin_dpi_frame.grid(column=0, row=5, sticky=tk.W)
 
     gutter_margin_size_label = ttk.Label(margin_dpi_frame, text="Gutter Margin(mm):")
     gutter_margin_size_label.grid(column=0, row=0, sticky=tk.W)
@@ -253,7 +253,7 @@ def main():
     cut_lines_on_margin_only = tk.BooleanVar()
     no_cut_lines_on_last_sheet = tk.BooleanVar()
     boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
-    boolean_options_frame.grid(column=0, row=9, rowspan=4, sticky=tk.W)
+    boolean_options_frame.grid(column=1, row=0, rowspan=3, sticky=tk.W)
 
     verbose_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Verbose Console Output", variable=verbose
@@ -282,7 +282,7 @@ def main():
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
     )
-    pdf_generation_options_frame.grid(column=0, row=15, rowspan=9, sticky=tk.W)
+    pdf_generation_options_frame.grid(column=1, row=2, rowspan=9, sticky=tk.W)
 
     generate_bleed_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -422,7 +422,7 @@ def main():
     start_button = ttk.Button(
         main_frame, text="Start script", command=start_script_wrapper
     )
-    start_button.grid(column=0, row=24, sticky=tk.W)
+    start_button.grid(column=0, row=6, sticky=tk.W)
 
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
