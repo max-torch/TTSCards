@@ -2,9 +2,10 @@ from collections import namedtuple
 import json
 import logging
 import os
+import pytesseract
 import threading
 import tkinter as tk
-from tkinter import ttk, filedialog, simpledialog
+from tkinter import ttk, filedialog, simpledialog, messagebox
 
 from callbacks import start_script
 
@@ -290,7 +291,7 @@ def main():
 
     sharpen_text_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
-        text="Sharpen Text (Experimental)",
+        text="Sharpen Text",
         variable=sharpen_text,
     )
     sharpen_text_checkbox.grid(column=0, row=2, sticky=tk.W)
@@ -344,9 +345,27 @@ def main():
 
     # Create a button to start the script
     def start_script_wrapper():
-        """Wrapper function to pass all the variables to the start_script function."""
+        """
+        Wrapper function to pass all the variables to the start_script function.
+        This function also checks if Tesseract is installed if the sharpen text option is selected.
+        It creates a progress window to indicate that the script is running.
+        """
+        # Check if tesseract is installed and added to PATH only if the sharpen text option is selected
+        if sharpen_text.get():
+            try:
+                pytesseract.get_tesseract_version()
+            except pytesseract.TesseractNotFoundError:
+                messagebox.showerror(
+                    "Error",
+                    "Tesseract is not installed or not added to PATH. Please install Tesseract from https://tesseract-ocr.github.io/tessdoc/Installation.html or disable the 'Sharpen Text' option."
+                )
+                return
+
         def top_level_window_wrapper():
-            """Wrapper function to create a top-level window to indicate that the script is running."""
+            """
+            Wrapper function to create a top-level window to indicate that the script is running.
+            This function calls the start_script function with the necessary parameters.
+            """
             try:
                 start_script(
                     path.get(),
