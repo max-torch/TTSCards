@@ -40,16 +40,16 @@ def generate_bleed_for_image(image: Image.Image, bleed_size: int) -> Image.Image
     new_image.paste(image, (bleed_size, bleed_size))
 
     # Paste the mirrored over rectangular regions onto the new image
-    new_image.paste(left_region.transpose(Image.FLIP_LEFT_RIGHT), (0, bleed_size))
+    new_image.paste(left_region.transpose(Image.Transpose.FLIP_LEFT_RIGHT), (0, bleed_size))
     new_image.paste(
-        bottom_region.transpose(Image.FLIP_TOP_BOTTOM),
+        bottom_region.transpose(Image.Transpose.FLIP_TOP_BOTTOM),
         (bleed_size, image.height + bleed_size),
     )
     new_image.paste(
-        right_region.transpose(Image.FLIP_LEFT_RIGHT),
+        right_region.transpose(Image.Transpose.FLIP_LEFT_RIGHT),
         (image.width + bleed_size, bleed_size),
     )
-    new_image.paste(top_region.transpose(Image.FLIP_TOP_BOTTOM), (bleed_size, 0))
+    new_image.paste(top_region.transpose(Image.Transpose.FLIP_TOP_BOTTOM), (bleed_size, 0))
 
     return new_image
 
@@ -223,8 +223,9 @@ def generate_pdf(
         gutter_margin_size (float): The size of the margin between cards in mm.
         filename (str): The name of the output PDF file.
         cut_lines_on_margin_only (bool): Whether to draw cut lines only on the margin.
-        bleed_size (float, optional): The size of the bleed in mm. Defaults to 2.0.
+        bleed_width (float, optional): The size of the bleed in mm. Defaults to 2.0.
         no_cut_lines_on_last_sheet (bool, optional): Whether to omit cut lines on the last sheet. Defaults to False.
+        line_width (int, optional): The width of the cut lines in pixels. Defaults to 1.
 
     Returns:
         None
@@ -325,7 +326,7 @@ def generate_pdf(
             card = images[i * num_cards_x * num_cards_y + j]
 
             # Resize the card to the desired length while maintaining aspect ratio
-            card = card.resize(no_bleed_card_size, Image.LANCZOS)
+            card = card.resize(no_bleed_card_size, Image.Resampling.LANCZOS)
 
             # Sharpen text on the card
             if sharpen_text:

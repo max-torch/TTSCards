@@ -30,7 +30,7 @@ def main():
     logger = logging.getLogger("main")
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
@@ -48,9 +48,11 @@ def main():
 
     config = load_user_settings()
 
-    def save_user_settings(config: dict):
+    def save_user_settings(user_config: dict):
         with open("config.json", "w") as f:
-            json.dump(config, f, indent=4)
+            # Erroneous flagging of a problem by PyCharm. See https://stackoverflow.com/questions/79049420/python3-pickle-expected-type-supportswritebytes-got-binaryio-instead
+            # noinspection PyTypeChecker
+            json.dump(user_config, f, indent=4)
 
     # Create a root window
     root = tk.Tk()
@@ -143,7 +145,7 @@ def main():
 
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
-    main_frame.grid(column=0, row=0, sticky=("n", "w", "e", "s"))
+    main_frame.grid(column=0, row=0, sticky="nsew")
     main_frame.columnconfigure(0, weight=1)
     main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
