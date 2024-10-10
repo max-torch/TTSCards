@@ -1,11 +1,12 @@
-from collections import namedtuple
 import json
 import logging
 import os
-import pytesseract
 import threading
 import tkinter as tk
+from collections import namedtuple
 from tkinter import ttk, filedialog, simpledialog, messagebox
+
+import pytesseract
 
 from callbacks import start_script
 
@@ -32,7 +33,8 @@ def main():
     logger = logging.getLogger("main")
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
+    formatter = logging.Formatter(
+        "%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 

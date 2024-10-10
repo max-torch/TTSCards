@@ -8,7 +8,6 @@ from PIL import Image
 
 from pdf_generation import generate_pdf
 
-
 # Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
     "A4": (2480, 3508),
@@ -17,11 +16,11 @@ SHEET_SIZES = {
 }
 CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
 
-
 # Create a logger for callbacks.py
 logger = logging.getLogger("callbacks")
 handler = logging.StreamHandler()
-formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
+formatter = logging.Formatter(
+    "%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -81,7 +80,7 @@ def download_image(url: str, blacklist: list[str], cache_folder: str) -> Image:
 
 
 def crop_from_sprite_sheet(
-    sprite_sheet: Image, num_width: int, num_height: int, card_id: int
+        sprite_sheet: Image, num_width: int, num_height: int, card_id: int
 ) -> Image:
     """
     Crop a specific card from a sprite sheet based on its ID.
@@ -183,7 +182,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
 
 
 def process_bag(
-    bag: dict, blacklist: list, cachepath: str, process_nested: bool
+        bag: dict, blacklist: list, cachepath: str, process_nested: bool
 ) -> list[dict]:
     """
     Processes a bag object, extracting images from contained objects.
@@ -214,7 +213,7 @@ def process_bag(
 
 
 def process_tts_object(
-    tts_object, process_nested_containers, blacklist, cachepath: str
+        tts_object, process_nested_containers, blacklist, cachepath: str
 ) -> list[dict]:
     """
     Processes a TTS object and its nested objects, extracting images and handling different object types.
@@ -284,29 +283,29 @@ def load_images(output_directory: str) -> list[dict]:
 
 
 def start_script(
-    path: str,
-    cachepath: str,
-    preset_image_size: str,
-    custom_image_size_width: int,
-    custom_image_size_length: int,
-    sheet_size: str,
-    gutter_margin_size: float,
-    dpi: int,
-    verbose: bool,
-    process_nested_containers: bool,
-    exclude_card_urls: bool,
-    generate_bleed: bool,
-    sharpen_text: bool,
-    draw_cut_lines: bool,
-    split_double_and_single: bool,
-    double_only: bool,
-    single_only: bool,
-    save_images: bool,
-    arrange_into_pdf: bool,
-    cut_lines_on_margin_only: bool,
-    no_cut_lines_on_last_sheet: bool,
-    bleed_width: float,
-    line_width: int,
+        path: str,
+        cachepath: str,
+        preset_image_size: str,
+        custom_image_size_width: int,
+        custom_image_size_length: int,
+        sheet_size: str,
+        gutter_margin_size: float,
+        dpi: int,
+        verbose: bool,
+        process_nested_containers: bool,
+        exclude_card_urls: bool,
+        generate_bleed: bool,
+        sharpen_text: bool,
+        draw_cut_lines: bool,
+        split_double_and_single: bool,
+        double_only: bool,
+        single_only: bool,
+        save_images: bool,
+        arrange_into_pdf: bool,
+        cut_lines_on_margin_only: bool,
+        no_cut_lines_on_last_sheet: bool,
+        bleed_width: float,
+        line_width: int,
 ) -> None:
     """
     Starts the script to process images and arrange them into a PDF.
