@@ -2,6 +2,7 @@ from collections import namedtuple
 import json
 import logging
 import os
+import threading
 import tkinter as tk
 from tkinter import ttk, filedialog, simpledialog
 
@@ -344,31 +345,58 @@ def main():
     # Create a button to start the script
     def start_script_wrapper():
         """Wrapper function to pass all the variables to the start_script function."""
-        start_script(
-            path.get(),
-            config["cachepath"],
-            preset_image_size.get(),
-            custom_image_size.width.get(),
-            custom_image_size.length.get(),
-            sheet_size.get(),
-            gutter_margin_size.get(),
-            dpi.get(),
-            verbose.get(),
-            process_nested_containers.get(),
-            exclude_card_urls.get(),
-            generate_bleed.get(),
-            sharpen_text.get(),
-            draw_cut_lines.get(),
-            split_double_and_single.get(),
-            double_only.get(),
-            single_only.get(),
-            save_images.get(),
-            arrange_into_pdf.get(),
-            cut_lines_on_margin_only.get(),
-            no_cut_lines_on_last_sheet.get(),
-            bleed_width=config["bleed_width"],
-            line_width=int(config["line_width"]),
+
+        def top_level_window_wrapper():
+            try:
+                start_script(
+                    path.get(),
+                    config["cachepath"],
+                    preset_image_size.get(),
+                    custom_image_size.width.get(),
+                    custom_image_size.length.get(),
+                    sheet_size.get(),
+                    gutter_margin_size.get(),
+                    dpi.get(),
+                    verbose.get(),
+                    process_nested_containers.get(),
+                    exclude_card_urls.get(),
+                    generate_bleed.get(),
+                    sharpen_text.get(),
+                    draw_cut_lines.get(),
+                    split_double_and_single.get(),
+                    double_only.get(),
+                    single_only.get(),
+                    save_images.get(),
+                    arrange_into_pdf.get(),
+                    cut_lines_on_margin_only.get(),
+                    no_cut_lines_on_last_sheet.get(),
+                    bleed_width=config["bleed_width"],
+                    line_width=int(config["line_width"]),
+                )
+            finally:
+                progress_window.destroy()
+
+        progress_window = tk.Toplevel(root)
+        progress_window.title("Processing")
+        progress_window.grab_set()
+        progress_window.protocol("WM_DELETE_WINDOW", lambda: None)
+        progress_window.resizable(False, False)
+
+        # Center the progress window on the monitor screen
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        progress_window_width = 300
+        progress_window_height = 100
+        progress_window_x = (screen_width - progress_window_width) // 2
+        progress_window_y = (screen_height - progress_window_height) // 2
+        progress_window.geometry(
+            f"{progress_window_width}x{progress_window_height}+{progress_window_x}+{progress_window_y}"
         )
+
+        progress_label = ttk.Label(progress_window, text="Working on it...", anchor="center")
+        progress_label.pack(expand=True, fill="both", padx=10, pady=10)
+
+        threading.Thread(target=top_level_window_wrapper).start()
 
     start_button = ttk.Button(
         main_frame, text="Start script", command=start_script_wrapper
