@@ -278,6 +278,9 @@ def load_images(output_directory: str) -> list[dict]:
             images.append({"face": image})
         elif "_back" in filename:
             images.append({"back": image})
+        else:
+            # If the image name doesn't conform, treat is as a face image
+            images.append({"face": image})
 
     return images
 
