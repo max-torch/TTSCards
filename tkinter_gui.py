@@ -252,7 +252,7 @@ def main():
     skip_pdf_generation = tk.BooleanVar()
     cut_lines_on_margin_only = tk.BooleanVar()
     no_cut_lines_on_last_sheet = tk.BooleanVar()
-    boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
+    boolean_options_frame = ttk.LabelFrame(main_frame, text="General Options")
     boolean_options_frame.grid(column=1, row=0, rowspan=3, sticky=tk.W)
 
     verbose_checkbox = ttk.Checkbutton(
