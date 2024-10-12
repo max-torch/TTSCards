@@ -114,7 +114,7 @@ def crop_from_sprite_sheet(
     return card
 
 
-def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
+def process_deck(deck: dict, blacklist: list, cachepath: str, exclude_card_backs: bool) -> list[dict]:
     """
     Processes a deck of cards, filtering out blacklisted items and caching images.
 
@@ -122,6 +122,7 @@ def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
         deck (dict): The deck of cards to process, expected to have a "ContainedObjects" key.
         blacklist (list): A list of items to be excluded from processing.
         cachepath (str): The path where cached images should be stored.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing processed card images.
@@ -129,13 +130,13 @@ def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
     contained_objects = deck.get("ContainedObjects", {})
     images = []
     for card in contained_objects:
-        card_images = process_card(card, blacklist, cachepath)
+        card_images = process_card(card, blacklist, cachepath, exclude_card_backs)
         images.append(card_images)
     logger.info(f"Processed deck containing {len(images)} cards")
     return images
 
 
-def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
+def process_card(card: dict, blacklist: list, cachepath: str, exclude_card_backs) -> dict:
     """
     Processes a card dictionary to download and split the sprite sheet for the deck.
 
@@ -143,6 +144,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
         card (dict): A dictionary containing card information, including "Nickname", "CardID", and "CustomDeck".
         blacklist (list): A list of URLs to be blacklisted from downloading.
         cachepath (str): The path to the cache directory for storing downloaded images.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         dict: A dictionary containing the processed card images with keys "face" and "back".
@@ -167,14 +169,13 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
             )
             image["face"] = card_face
 
-    if back_url:
+    if back_url and not exclude_card_backs:
         sprite_sheet = download_image(back_url, blacklist, cachepath)
-        # else:
         if unique_back:
             image["back"] = crop_from_sprite_sheet(
                 sprite_sheet, num_width, num_height, card_id + 1000
             )
-        else:
+        elif sprite_sheet:
             image["back"] = sprite_sheet
 
     logger.info(f"Processed card: {nickname}")
@@ -182,7 +183,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
 
 
 def process_bag(
-        bag: dict, blacklist: list, cachepath: str, process_nested: bool
+        bag: dict, blacklist: list, cachepath: str, process_nested: bool, exclude_card_backs: bool
 ) -> list[dict]:
     """
     Processes a bag object, extracting images from contained objects.
@@ -192,6 +193,7 @@ def process_bag(
         blacklist (list): List of blacklisted items to exclude from processing.
         cachepath (str): Path to the cache directory.
         process_nested (bool): Flag to determine if nested containers should be processed.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing image data extracted from the bag.
@@ -201,19 +203,19 @@ def process_bag(
     for tts_object in contained_objects:
         if tts_object.get("Name") == "Deck":
             logger.info(f"Processing deck: {tts_object.get('Nickname', 'Unknown Deck')}")
-            images.extend(process_deck(tts_object, blacklist, cachepath))
+            images.extend(process_deck(tts_object, blacklist, cachepath, exclude_card_backs))
         elif tts_object.get("Name") == "Card":
             logger.info(f"Processing card: {tts_object.get('Nickname', 'Unknown Card')}")
-            images.append(process_card(tts_object, blacklist, cachepath))
+            images.append(process_card(tts_object, blacklist, cachepath, exclude_card_backs))
         elif tts_object.get("Name") == "Bag" and process_nested:
             logger.info(f"Processing bag: {tts_object.get('Nickname', 'Unknown Bag')}")
-            images.extend(process_bag(tts_object, blacklist, cachepath, process_nested))
+            images.extend(process_bag(tts_object, blacklist, cachepath, process_nested, exclude_card_backs))
 
     return images
 
 
 def process_tts_object(
-        tts_object, process_nested_containers, blacklist, cachepath: str
+        tts_object, process_nested_containers, blacklist, cachepath: str, exclude_card_backs: bool,
 ) -> list[dict]:
     """
     Processes a TTS object and its nested objects, extracting images and handling different object types.
@@ -224,6 +226,7 @@ def process_tts_object(
         process_nested_containers (bool): Flag to determine if nested containers should be processed.
         blacklist (list): List of blacklisted items to exclude from processing.
         cachepath (str): Path to the cache directory.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing image data extracted from the container.
@@ -235,14 +238,14 @@ def process_tts_object(
         obj_name = state.get("Name", "")
         if obj_name == "Deck":  # Process deck
             logger.info(f"Processing deck: {state.get('Nickname', 'Unknown Deck')}")
-            images.extend(process_deck(state, blacklist, cachepath))
+            images.extend(process_deck(state, blacklist, cachepath, exclude_card_backs))
         elif obj_name == "Card":  # Process single card
             logger.info(f"Processing card: {state.get('Nickname', 'Unknown Card')}")
-            images.append(process_card(state, blacklist, cachepath))
+            images.append(process_card(state, blacklist, cachepath, exclude_card_backs))
         elif obj_name == "Bag":  # Process container (Bag)
             logger.info(f"Processing bag: {state.get('Nickname', 'Unknown Bag')}")
             images.extend(
-                process_bag(state, blacklist, cachepath, process_nested_containers)
+                process_bag(state, blacklist, cachepath, process_nested_containers, exclude_card_backs)
             )
         else:
             logger.warning(f"Unknown object type: {obj_name}")
@@ -298,6 +301,7 @@ def start_script(
         verbose: bool,
         process_nested_containers: bool,
         exclude_card_urls: bool,
+        exclude_card_backs: bool,
         generate_bleed: bool,
         sharpen_text: bool,
         draw_cut_lines: bool,
@@ -327,6 +331,7 @@ def start_script(
         verbose (bool): Flag to enable verbose logging.
         process_nested_containers (bool): Flag to process nested containers in the TTS Saved Object.
         exclude_card_urls (bool): Flag to exclude card URLs from processing.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
         generate_bleed (bool): Flag to generate bleed for the images.
         sharpen_text (bool): Flag to sharpen text in the images.
         draw_cut_lines (bool): Flag to draw cut lines on the images.
@@ -391,6 +396,7 @@ def start_script(
             process_nested_containers,
             blacklist,
             cachepath,
+            exclude_card_backs,
         )
         logger.info(f"Successfully loaded {len(images)} images")
     else:

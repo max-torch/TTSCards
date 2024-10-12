@@ -255,6 +255,7 @@ def main():
     verbose = tk.BooleanVar(value=True)
     process_nested_containers = tk.BooleanVar(value=True)
     exclude_card_urls = tk.BooleanVar(value=True)
+    exclude_card_backs = tk.BooleanVar()
     generate_bleed = tk.BooleanVar()
     sharpen_text = tk.BooleanVar()
     draw_cut_lines = tk.BooleanVar()
@@ -287,10 +288,17 @@ def main():
     )
     exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
 
+    exclude_card_backs_checkbox = ttk.Checkbutton(
+        boolean_options_frame,
+        text="Exclude card backs",
+        variable=exclude_card_backs,
+    )
+    exclude_card_backs_checkbox.grid(column=0, row=3, sticky=tk.W)
+
     save_images_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Save Images to File", variable=save_images
     )
-    save_images_checkbox.grid(column=0, row=3, sticky=tk.W)
+    save_images_checkbox.grid(column=0, row=4, sticky=tk.W)
 
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
@@ -401,6 +409,7 @@ def main():
                     verbose.get(),
                     process_nested_containers.get(),
                     exclude_card_urls.get(),
+                    exclude_card_backs.get(),
                     generate_bleed.get(),
                     sharpen_text.get(),
                     draw_cut_lines.get(),
