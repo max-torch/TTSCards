@@ -185,7 +185,7 @@ def main():
     # Create entry fields for the custom image size
     CustomImageSize = namedtuple("CustomImageSize", ["width", "length"])
     custom_image_size = CustomImageSize(tk.IntVar(), tk.IntVar())
-    custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size")
+    custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size (px at 300dpi)")
     custom_image_size_frame.grid(column=0, row=3, sticky=tk.W)
 
     custom_size_width_label = ttk.Label(custom_image_size_frame, text="Width:")
@@ -420,7 +420,7 @@ def main():
         threading.Thread(target=top_level_window_wrapper).start()
 
     start_button = ttk.Button(
-        main_frame, text="Start script", command=start_script_wrapper
+        main_frame, text="Generate PDF", command=start_script_wrapper
     )
     start_button.grid(column=0, row=6, sticky=tk.W)
 
