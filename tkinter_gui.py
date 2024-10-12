@@ -249,7 +249,7 @@ def main():
     double_only = tk.BooleanVar()
     single_only = tk.BooleanVar()
     save_images = tk.BooleanVar()
-    arrange_into_pdf = tk.BooleanVar()
+    skip_pdf_generation = tk.BooleanVar()
     cut_lines_on_margin_only = tk.BooleanVar()
     no_cut_lines_on_last_sheet = tk.BooleanVar()
     boolean_options_frame = ttk.LabelFrame(main_frame, text="Additional Options")
@@ -338,12 +338,12 @@ def main():
     )
     single_only_checkbox.grid(column=0, row=8, sticky=tk.W)
 
-    arrange_into_pdf_checkbox = ttk.Checkbutton(
+    skip_pdf_generation_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
-        text="Arrange Images into PDF",
-        variable=arrange_into_pdf,
+        text="Test Mode (Skip PDF Generation)",
+        variable=skip_pdf_generation,
     )
-    arrange_into_pdf_checkbox.grid(column=0, row=9, sticky=tk.W)
+    skip_pdf_generation_checkbox.grid(column=0, row=9, sticky=tk.W)
 
     # Create a button to start the script
     def start_script_wrapper():
@@ -388,7 +388,7 @@ def main():
                     double_only.get(),
                     single_only.get(),
                     save_images.get(),
-                    arrange_into_pdf.get(),
+                    skip_pdf_generation.get(),
                     cut_lines_on_margin_only.get(),
                     no_cut_lines_on_last_sheet.get(),
                     bleed_width=config["bleed_width"],

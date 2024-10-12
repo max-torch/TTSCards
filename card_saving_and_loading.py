@@ -304,7 +304,7 @@ def start_script(
         double_only: bool,
         single_only: bool,
         save_images: bool,
-        arrange_into_pdf: bool,
+        skip_pdf_generation: bool,
         cut_lines_on_margin_only: bool,
         no_cut_lines_on_last_sheet: bool,
         bleed_width: float,
@@ -332,7 +332,7 @@ def start_script(
         double_only (bool): Flag to include only double-sided cards.
         single_only (bool): Flag to include only single-sided cards.
         save_images (bool): Flag to save images to the output directory.
-        arrange_into_pdf (bool): Flag to arrange images into a PDF.
+        skip_pdf_generation (bool): Flag to arrange images into a PDF.
         cut_lines_on_margin_only (bool): Flag to draw cut lines only on the margin.
         no_cut_lines_on_last_sheet (bool): Flag to avoid drawing cut lines on the last sheet.
         bleed_width (float): Width of the generated bleed.
@@ -362,7 +362,7 @@ def start_script(
     logger.debug(f"draw_cut_lines: {draw_cut_lines}")
     logger.debug(f"split_double_and_single: {split_double_and_single}")
     logger.debug(f"save_images: {save_images}")
-    logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
+    logger.debug(f"skip_pdf_generation: {skip_pdf_generation}")
     logger.debug(f"cut_lines_on_margin_only: {cut_lines_on_margin_only}")
     logger.debug(f"no_cut_lines_on_last_sheet: {no_cut_lines_on_last_sheet}")
     logger.debug(f"bleed_width: {bleed_width}")
@@ -424,7 +424,7 @@ def start_script(
             line_width=line_width,
         )
 
-    if arrange_into_pdf:
+    if not skip_pdf_generation:
         sheet_size = SHEET_SIZES[sheet_size]
         # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
         image_size = (
