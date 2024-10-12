@@ -190,23 +190,18 @@ def main():
     custom_card_length_entry = ttk.Entry(custom_card_size_frame, textvariable=custom_card_length)
     custom_card_length_entry.grid(column=1, row=0, sticky=tk.W)
 
-    # Create radio buttons for the sheet size
+    # Create a dropdown list for the sheet size
     sheet_size = tk.StringVar(value="Letter")
-    sheet_size_frame = ttk.LabelFrame(main_frame, text="Sheet Size")
+    sheet_size_frame = ttk.LabelFrame(main_frame, text="Preset Sheet Size")
     sheet_size_frame.grid(column=0, row=4, sticky=tk.W)
-
-    a4_radio = ttk.Radiobutton(
-        sheet_size_frame, text="A4", variable=sheet_size, value="A4"
+    sheet_size_option_menu = tk.OptionMenu(
+        sheet_size_frame,
+        sheet_size,
+        "Letter",
+        "A4",
+        "Legal"
     )
-    a4_radio.grid(column=0, row=0, sticky=tk.W)
-    letter_radio = ttk.Radiobutton(
-        sheet_size_frame, text="Letter", variable=sheet_size, value="Letter"
-    )
-    letter_radio.grid(column=0, row=1, sticky=tk.W)
-    legal_radio = ttk.Radiobutton(
-        sheet_size_frame, text="Legal", variable=sheet_size, value="Legal"
-    )
-    legal_radio.grid(column=0, row=2, sticky=tk.W)
+    sheet_size_option_menu.grid(column=0, row=4, sticky=tk.W)
 
     # Create entry fields for the margin size and dpi
     gutter_margin_size = tk.DoubleVar(value=3.175)
@@ -270,7 +265,7 @@ def main():
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
     )
-    pdf_generation_options_frame.grid(column=1, row=2, rowspan=9, sticky=tk.W)
+    pdf_generation_options_frame.grid(column=1, row=3, rowspan=9, sticky=tk.W)
 
     generate_bleed_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
