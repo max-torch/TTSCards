@@ -291,6 +291,8 @@ def start_script(
         preset_image_size: str,
         custom_image_size_length: float,
         sheet_size: str,
+        custom_sheet_width: float,
+        custom_sheet_length: float,
         gutter_margin_size: float,
         dpi: int,
         verbose: bool,
@@ -318,6 +320,8 @@ def start_script(
         preset_image_size (str): Preset size of the images.
         custom_image_size_length (float): Custom length of the images in mm.
         sheet_size (str): Size of the sheet for the PDF.
+        custom_sheet_width (float): Custom width of the sheet in mm.
+        custom_sheet_length (float): Custom length of the sheet in mm.
         gutter_margin_size (float): Size of the gutter margin.
         dpi (int): Dots per inch for the output PDF.
         verbose (bool): Flag to enable verbose logging.
@@ -422,7 +426,13 @@ def start_script(
         )
 
     if not skip_pdf_generation:
-        sheet_size = SHEET_SIZES[sheet_size]
+        custom_sheet_width_px_at_300dpi = int(custom_sheet_width / 25.4 * 300)
+        custom_sheet_length_px_at_300dpi = int(custom_sheet_length / 25.4 * 300)
+        sheet_size = (
+            SHEET_SIZES[sheet_size]
+            if custom_sheet_width == 0 or custom_sheet_length == 0
+            else (custom_sheet_width_px_at_300dpi, custom_sheet_length_px_at_300dpi)
+        )
 
         # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
         image_length = (

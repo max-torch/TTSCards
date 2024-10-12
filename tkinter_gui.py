@@ -383,6 +383,8 @@ def main():
                     preset_image_size.get(),
                     custom_card_length.get(),
                     sheet_size.get(),
+                    custom_sheet_width.get(),
+                    custom_sheet_length.get(),
                     gutter_margin_size.get(),
                     dpi.get(),
                     verbose.get(),
