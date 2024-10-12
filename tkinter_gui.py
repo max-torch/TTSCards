@@ -379,23 +379,31 @@ def main():
         This function also checks if Tesseract is installed if the sharpen text option is selected.
         It creates a progress window to indicate that the script is running.
         """
+        # Create a list to store error messages
+        error_messages = []
+
         # Check if tesseract is installed and added to PATH only if the sharpen text option is selected
         if sharpen_text.get():
             try:
                 pytesseract.get_tesseract_version()
             except pytesseract.TesseractNotFoundError:
-                messagebox.showerror(
-                    "Error",
-                    "Tesseract is not installed or not added to PATH. Please install Tesseract from https://tesseract-ocr.github.io/tessdoc/Installation.html or disable the 'Sharpen Text' option."
+                error_messages.append(
+                    "- Tesseract is not installed or not added to PATH. Please install Tesseract from https://tesseract-ocr.github.io/tessdoc/Installation.html or disable the 'Sharpen Text' option."
                 )
-                return
 
         # Check if the path of the TTS mod images cache folder is set
         if "cachepath" not in config:
-            messagebox.showerror(
-                "Error",
-                "Please select your TTS mod images cache folder from the Settings menu before proceeding. The application will remember this setting for future use."
+            error_messages.append(
+                "- Please select your TTS mod images cache folder from the Settings menu before proceeding. The application will remember this setting for future use."
             )
+
+        # Check if a file or folder was selected
+        if path.get() == "No file or folder selected":
+            error_messages.append("- You have not selected a TTS object file or an images folder.")
+
+        # If there are any error messages, show them in a single message box
+        if error_messages:
+            messagebox.showerror("Error", "\n\n".join(error_messages))
             return
 
         def top_level_window_wrapper():
