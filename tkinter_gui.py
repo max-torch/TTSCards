@@ -390,6 +390,14 @@ def main():
                 )
                 return
 
+        # Check if the path of the TTS mod images cache folder is set
+        if "cachepath" not in config:
+            messagebox.showerror(
+                "Error",
+                "Please select your TTS mod images cache folder from the Settings menu before proceeding. The application will remember this setting for future use."
+            )
+            return
+
         def top_level_window_wrapper():
             """
             Wrapper function to create a top-level window to indicate that the script is running.
