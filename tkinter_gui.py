@@ -288,7 +288,7 @@ def main():
 
     cut_lines_on_margin_only_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
-        text="Cut Lines on Margin Only",
+        text="Cut Lines on Margins Only",
         variable=cut_lines_on_margin_only,
     )
     cut_lines_on_margin_only_checkbox.grid(column=0, row=4, sticky=tk.W)
