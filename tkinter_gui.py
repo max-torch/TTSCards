@@ -154,10 +154,14 @@ def main():
     main_frame.columnconfigure(1, weight=1)
     main_frame.rowconfigure(0, weight=1)
 
+    # Create a frame for displaying the selected file or folder path
+    path_display_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
+    path_display_frame.grid(column=0, row=0, sticky=tk.W)
+
     # Display the selected file or folder path
-    path_header_label = ttk.Label(main_frame, text="Selected file or folder:")
+    path_header_label = ttk.Label(path_display_frame, text="Selected file or folder:")
     path_header_label.grid(column=0, row=0, sticky=tk.W)
-    path_frame = ttk.Frame(main_frame, relief=tk.SUNKEN, borderwidth=1)
+    path_frame = ttk.Frame(path_display_frame, relief=tk.SUNKEN, borderwidth=1)
     path_frame.grid(column=0, row=1, sticky=tk.W)
     path_label = ttk.Label(path_frame, textvariable=path, wraplength=250)
     path_label.grid(column=0, row=0, sticky=tk.W)
@@ -182,7 +186,7 @@ def main():
     )
     mini_radio.grid(column=0, row=1, sticky=tk.W)
 
-    # Create an entry field for  card length
+    # Create an entry field for custom card length
     custom_card_size_frame = ttk.LabelFrame(main_frame, text="Custom Card Size")
     custom_card_size_frame.grid(column=0, row=3, sticky=tk.W)
     custom_card_length = tk.DoubleVar()
@@ -204,11 +208,25 @@ def main():
     )
     sheet_size_option_menu.grid(column=0, row=4, sticky=tk.W)
 
+    # Create entry fields for custom sheet size
+    custom_sheet_size_frame = ttk.LabelFrame(main_frame, text="Custom Sheet Size")
+    custom_sheet_size_frame.grid(column=0, row=5, sticky=tk.W)
+    custom_sheet_width = tk.DoubleVar()
+    custom_sheet_length = tk.DoubleVar()
+    custom_sheet_width_label = ttk.Label(custom_sheet_size_frame, text="Sheet Width (mm):")
+    custom_sheet_width_label.grid(column=0, row=0, sticky=tk.W)
+    custom_sheet_width_entry = ttk.Entry(custom_sheet_size_frame, textvariable=custom_sheet_width)
+    custom_sheet_width_entry.grid(column=1, row=0, sticky=tk.W)
+    custom_sheet_length_label = ttk.Label(custom_sheet_size_frame, text="Sheet Length (mm):")
+    custom_sheet_length_label.grid(column=0, row=1, sticky=tk.W)
+    custom_sheet_length_entry = ttk.Entry(custom_sheet_size_frame, textvariable=custom_sheet_length)
+    custom_sheet_length_entry.grid(column=1, row=1, sticky=tk.W)
+
     # Create entry fields for the margin size and dpi
     gutter_margin_size = tk.DoubleVar(value=3.175)
     dpi = tk.IntVar(value=360)
     margin_dpi_frame = ttk.LabelFrame(main_frame, text="Margin and DPI")
-    margin_dpi_frame.grid(column=0, row=5, sticky=tk.W)
+    margin_dpi_frame.grid(column=0, row=6, sticky=tk.W)
 
     gutter_margin_size_label = ttk.Label(margin_dpi_frame, text="Gutter Margin(mm):")
     gutter_margin_size_label.grid(column=0, row=0, sticky=tk.W)
@@ -237,7 +255,7 @@ def main():
     cut_lines_on_margin_only = tk.BooleanVar()
     no_cut_lines_on_last_sheet = tk.BooleanVar()
     boolean_options_frame = ttk.LabelFrame(main_frame, text="General Options")
-    boolean_options_frame.grid(column=1, row=0, rowspan=3, sticky=tk.W)
+    boolean_options_frame.grid(column=1, row=0, rowspan=1, sticky=tk.W)
 
     verbose_checkbox = ttk.Checkbutton(
         boolean_options_frame, text="Verbose Console Output", variable=verbose
@@ -266,7 +284,7 @@ def main():
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
     )
-    pdf_generation_options_frame.grid(column=1, row=3, rowspan=9, sticky=tk.W)
+    pdf_generation_options_frame.grid(column=1, row=1, rowspan=6, sticky=tk.W)
 
     generate_bleed_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -411,7 +429,7 @@ def main():
     start_button = ttk.Button(
         main_frame, text="Generate PDF", command=start_script_wrapper
     )
-    start_button.grid(column=0, row=6, sticky=tk.W)
+    start_button.grid(column=0, row=7, sticky=tk.W)
 
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
