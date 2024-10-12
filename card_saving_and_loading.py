@@ -20,7 +20,7 @@ CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
 logger = logging.getLogger("main")
 handler = logging.StreamHandler()
 formatter = logging.Formatter(
-    "%(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
+    "%(levelname)s: %(message)s")  # noqa; because the levelname is not a typo in this context
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
