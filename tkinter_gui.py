@@ -147,6 +147,17 @@ def main():
         label="Select TTS mod images cache folder", command=select_cache_folder
     )
 
+    # Create an about menu
+    about_menu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="About", menu=about_menu)
+    about_menu.add_command(
+        label="About",
+        command=lambda: messagebox.showinfo(
+            "About",
+            "This application converts Tabletop Simulator (TTS) cards to PDF files. You are responsible for how you use this software.\n\nThe following open-source libraries are used in this application:\n- Pillow\n- PyTesseract\n- OpenCV\n- TkInter\n\nThis application is not affiliated with Tabletop Simulator or Berserk Games."
+        ),
+    )
+
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
     main_frame.grid(column=0, row=0, sticky="nsew")
