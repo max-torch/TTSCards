@@ -60,6 +60,7 @@ def main():
     # Create a root window
     root = tk.Tk()
     root.title("TTS Object to PDF")
+    root.resizable(False, False)
     style = ttk.Style()
     style.theme_use("alt")
 
