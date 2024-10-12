@@ -184,8 +184,8 @@ def main():
 
     # Create entry fields for the custom image size
     CustomImageSize = namedtuple("CustomImageSize", ["width", "length"])
-    custom_image_size = CustomImageSize(tk.IntVar(), tk.IntVar())
-    custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size (px at 300dpi)")
+    custom_image_size = CustomImageSize(tk.DoubleVar(), tk.DoubleVar())
+    custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size (mm)")
     custom_image_size_frame.grid(column=0, row=3, sticky=tk.W)
 
     custom_size_width_label = ttk.Label(custom_image_size_frame, text="Width:")

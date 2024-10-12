@@ -289,8 +289,8 @@ def start_script(
         path: str,
         cachepath: str,
         preset_image_size: str,
-        custom_image_size_width: int,
-        custom_image_size_length: int,
+        custom_image_size_width: float,
+        custom_image_size_length: float,
         sheet_size: str,
         gutter_margin_size: float,
         dpi: int,
@@ -317,8 +317,8 @@ def start_script(
         path (str): Path to the input file containing TTS Saved Object data or folder containing images.
         cachepath (str): Path to the cache directory.
         preset_image_size (str): Preset size of the images.
-        custom_image_size_width (int): Custom width of the images.
-        custom_image_size_length (int): Custom length of the images.
+        custom_image_size_width (float): Custom width of the images in mm.
+        custom_image_size_length (float): Custom length of the images in mm.
         sheet_size (str): Size of the sheet for the PDF.
         gutter_margin_size (float): Size of the gutter margin.
         dpi (int): Dots per inch for the output PDF.

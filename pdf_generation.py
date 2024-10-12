@@ -193,7 +193,7 @@ def generate_pdf(
         images: list[Image.Image],
         output_dir: str,
         sheet_size: tuple,
-        card_length: int,
+        card_length: float,
         dpi: int,
         logger: logging.Logger,
         draw_cut_lines: bool,
@@ -213,7 +213,7 @@ def generate_pdf(
         images (list[Image.Image]): A list of PIL Image objects representing the cards.
         output_dir (str): The directory to save the generated PDF file.
         sheet_size (tuple): The size of the sheet in pixels at 300dpi.
-        card_length (int): The length of the card in pixels at 300dpi.
+        card_length (float): The length of the card in mm.
         dpi (int): The desired DPI for the output PDF file.
         logger (logging.Logger): The logger object.
         draw_cut_lines (bool): Whether to draw cut lines on the PDF.
@@ -231,7 +231,7 @@ def generate_pdf(
     """
 
     # Convert card length, sheet size, and gutter margin size to pixels at the desired DPI
-    converted_card_length = int(card_length * dpi / 300)
+    converted_card_length = int(card_length * dpi / 25.4)
     converted_sheet_size = (
         int(sheet_size[0] * dpi / 300),
         int(sheet_size[1] * dpi / 300),
