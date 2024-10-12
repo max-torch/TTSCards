@@ -300,33 +300,39 @@ def main():
     )
     no_cut_lines_on_last_sheet_checkbox.grid(column=0, row=5, sticky=tk.W)
 
-    split_double_and_single_checkbox = ttk.Checkbutton(
+    split_double_and_single_frame = ttk.LabelFrame(
         pdf_generation_options_frame,
-        text="Split Double-Sided and Single-Sided Cards",
+        text="Split Double-Sided and Single-Sided Cards"
+    )
+    split_double_and_single_frame.grid(column=0, row=7, sticky=tk.W)
+
+    split_double_and_single_checkbox = ttk.Checkbutton(
+        split_double_and_single_frame,
+        text="Enable",
         variable=split_double_and_single,
     )
-    split_double_and_single_checkbox.grid(column=0, row=6, sticky=tk.W)
+    split_double_and_single_checkbox.grid(column=0, row=0, sticky=tk.W, padx=0)
 
     double_only_checkbox = ttk.Checkbutton(
-        pdf_generation_options_frame,
+        split_double_and_single_frame,
         text="Double-Sided Cards Only",
         variable=double_only,
     )
-    double_only_checkbox.grid(column=0, row=7, sticky=tk.W)
+    double_only_checkbox.grid(column=0, row=1, sticky=tk.W, padx=20)
 
     single_only_checkbox = ttk.Checkbutton(
-        pdf_generation_options_frame,
+        split_double_and_single_frame,
         text="Single-Sided Cards Only",
         variable=single_only,
     )
-    single_only_checkbox.grid(column=0, row=8, sticky=tk.W)
+    single_only_checkbox.grid(column=0, row=2, sticky=tk.W, padx=20)
 
     skip_pdf_generation_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
         text="Test Mode (Skip PDF Generation)",
         variable=skip_pdf_generation,
     )
-    skip_pdf_generation_checkbox.grid(column=0, row=9, sticky=tk.W)
+    skip_pdf_generation_checkbox.grid(column=0, row=6, sticky=tk.W)
 
     # Create a button to start the script
     def start_script_wrapper():
