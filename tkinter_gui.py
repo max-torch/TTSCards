@@ -29,11 +29,11 @@ def main():
     Functions:
         main(): Initializes and runs the GUI application.
     """
-    logger = logging.getLogger("main")
+    logger = logging.getLogger("GUI")
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler()
     formatter = logging.Formatter(
-        "%(name)s - %(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
+        "%(levelname)s - %(message)s")  # noqa; because the levelname is not a typo in this context
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 
