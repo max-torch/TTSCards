@@ -2,7 +2,7 @@
 
  An application that converts Tabletop Simulator saved objects to printable pdf files
 
-# Creating the Binary
+## Creating the Binary
 
 1. Install [PyInstaller](https://www.pyinstaller.org/)
 2. Run `pyinstaller tkinter_gui.py`
