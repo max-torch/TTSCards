@@ -289,7 +289,6 @@ def start_script(
         path: str,
         cachepath: str,
         preset_image_size: str,
-        custom_image_size_width: float,
         custom_image_size_length: float,
         sheet_size: str,
         gutter_margin_size: float,
@@ -317,7 +316,6 @@ def start_script(
         path (str): Path to the input file containing TTS Saved Object data or folder containing images.
         cachepath (str): Path to the cache directory.
         preset_image_size (str): Preset size of the images.
-        custom_image_size_width (float): Custom width of the images in mm.
         custom_image_size_length (float): Custom length of the images in mm.
         sheet_size (str): Size of the sheet for the PDF.
         gutter_margin_size (float): Size of the gutter margin.
@@ -349,7 +347,6 @@ def start_script(
     logger.debug(f"path: {path}")
     logger.debug(f"cachepath: {cachepath}")
     logger.debug(f"preset_image_size: {preset_image_size}")
-    logger.debug(f"custom_image_size_width: {custom_image_size_width}")
     logger.debug(f"custom_image_size_length: {custom_image_size_length}")
     logger.debug(f"sheet_size: {sheet_size}")
     logger.debug(f"gutter_margin_size: {gutter_margin_size}")
@@ -426,14 +423,14 @@ def start_script(
 
     if not skip_pdf_generation:
         sheet_size = SHEET_SIZES[sheet_size]
+
         # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
-        image_size = (
-            CARD_SIZES[preset_image_size]
-            if custom_image_size_width == 0 or custom_image_size_length == 0
-            else (custom_image_size_width, custom_image_size_length)
+        image_length = (
+            CARD_SIZES[preset_image_size][1] / 300 * 25.4
+            if custom_image_size_length == 0
+            else custom_image_size_length
         )
-        image_length = image_size[1]
-        logger.debug(f"image_size: {image_size}")
+        logger.debug(f"image_length: {image_length}")
 
         # Remove keys with None values
         images = [{k: v for k, v in image.items() if v is not None} for image in images]

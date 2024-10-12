@@ -3,7 +3,6 @@ import logging
 import os
 import threading
 import tkinter as tk
-from collections import namedtuple
 from tkinter import ttk, filedialog, simpledialog, messagebox
 
 import pytesseract
@@ -164,7 +163,7 @@ def main():
 
     # Create radio buttons for the preset image size
     preset_image_size = tk.StringVar(value="standard")
-    image_size_frame = ttk.LabelFrame(main_frame, text="Preset Image Size")
+    image_size_frame = ttk.LabelFrame(main_frame, text="Preset Card Size")
     image_size_frame.grid(column=0, row=2, sticky=tk.W)
 
     standard_radio = ttk.Radiobutton(
@@ -182,25 +181,14 @@ def main():
     )
     mini_radio.grid(column=0, row=1, sticky=tk.W)
 
-    # Create entry fields for the custom image size
-    CustomImageSize = namedtuple("CustomImageSize", ["width", "length"])
-    custom_image_size = CustomImageSize(tk.DoubleVar(), tk.DoubleVar())
-    custom_image_size_frame = ttk.LabelFrame(main_frame, text="Custom Image Size (mm)")
-    custom_image_size_frame.grid(column=0, row=3, sticky=tk.W)
-
-    custom_size_width_label = ttk.Label(custom_image_size_frame, text="Width:")
-    custom_size_width_label.grid(column=0, row=0, sticky=tk.W)
-    custom_size_width_entry = ttk.Entry(
-        custom_image_size_frame, textvariable=custom_image_size.width
-    )
-    custom_size_width_entry.grid(column=1, row=0, sticky=tk.W)
-
-    custom_size_length_label = ttk.Label(custom_image_size_frame, text="Length:")
-    custom_size_length_label.grid(column=0, row=1, sticky=tk.W)
-    custom_size_length_entry = ttk.Entry(
-        custom_image_size_frame, textvariable=custom_image_size.length
-    )
-    custom_size_length_entry.grid(column=1, row=1, sticky=tk.W)
+    # Create an entry field for  card length
+    custom_card_size_frame = ttk.LabelFrame(main_frame, text="Custom Card Size")
+    custom_card_size_frame.grid(column=0, row=3, sticky=tk.W)
+    custom_card_length = tk.DoubleVar()
+    custom_card_length_label = ttk.Label(custom_card_size_frame, text="Card Length (mm):")
+    custom_card_length_label.grid(column=0, row=0, sticky=tk.W)
+    custom_card_length_entry = ttk.Entry(custom_card_size_frame, textvariable=custom_card_length)
+    custom_card_length_entry.grid(column=1, row=0, sticky=tk.W)
 
     # Create radio buttons for the sheet size
     sheet_size = tk.StringVar(value="Letter")
@@ -373,8 +361,7 @@ def main():
                     path.get(),
                     config["cachepath"],
                     preset_image_size.get(),
-                    custom_image_size.width.get(),
-                    custom_image_size.length.get(),
+                    custom_card_length.get(),
                     sheet_size.get(),
                     gutter_margin_size.get(),
                     dpi.get(),

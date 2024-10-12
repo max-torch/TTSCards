@@ -231,6 +231,7 @@ def generate_pdf(
     """
 
     # Convert card length, sheet size, and gutter margin size to pixels at the desired DPI
+    logger.debug(f"Card length: {card_length}")
     converted_card_length = int(card_length * dpi / 25.4)
     converted_sheet_size = (
         int(sheet_size[0] * dpi / 300),
