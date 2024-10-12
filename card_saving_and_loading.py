@@ -16,7 +16,7 @@ SHEET_SIZES = {
 }
 CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
 
-# Create a logger for callbacks.py
+# Create a logger for card_saving_and_loading.py
 logger = logging.getLogger("callbacks")
 handler = logging.StreamHandler()
 formatter = logging.Formatter(

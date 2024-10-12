@@ -8,7 +8,7 @@ from tkinter import ttk, filedialog, simpledialog, messagebox
 
 import pytesseract
 
-from callbacks import start_script
+from card_saving_and_loading import start_script
 
 
 def main():
