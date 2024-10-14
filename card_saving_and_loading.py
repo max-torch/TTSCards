@@ -8,6 +8,14 @@ from PIL import Image
 
 from pdf_generation import generate_pdf
 
+# Define custom exceptions
+class ImageFilesNotFoundError(Exception):
+    """Raised when the image files are not found in the specified directory."""
+
+    def __init__(self, message="No image files were found in the specified directory. No output was generated."):
+        self.message = message
+        super().__init__(self.message)
+
 # Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
     "A4": (2480, 3508),
@@ -386,6 +394,8 @@ def start_script(
     if os.path.isdir(path):
         logger.info("Loading images from directory")
         images = load_images(path)
+        if not images:
+            raise ImageFilesNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images from directory")
     elif os.path.isfile(path):
         with open(path, "r") as file:
