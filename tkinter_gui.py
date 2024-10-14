@@ -231,7 +231,7 @@ def main():
     custom_card_length_entry = ttk.Entry(custom_card_size_frame, textvariable=custom_card_length)
     custom_card_length_entry.grid(column=1, row=0, sticky=tk.W)
     balloon.bind(custom_card_size_frame,
-                 "If set to 0, the selected preset card size will be used. Otherwise if you enter a value, the custom card length will be used. When resizing, the aspect ratio is maintained and does not warrant the need for entering a custom card width.")
+                 "If set to 0, the selected preset card size will be used. Otherwise if you enter a value, the custom card length will be used. When resizing, the aspect ratio is maintained.")
 
     # Create a dropdown list for the sheet size
     sheet_size = tk.StringVar(value="Letter")
