@@ -8,6 +8,7 @@ from PIL import Image
 
 from pdf_generation import generate_pdf
 
+
 # Define custom exceptions
 class ImageFilesNotFoundError(Exception):
     """Raised when the image files are not found in the specified directory."""
@@ -16,12 +17,14 @@ class ImageFilesNotFoundError(Exception):
         self.message = message
         super().__init__(self.message)
 
+
 class CardsNotFoundError(Exception):
     """Raised when no cards are found in the TTS Saved Object data."""
 
     def __init__(self, message="No cards were found in the TTS Saved Object data. No output was generated."):
         self.message = message
         super().__init__(self.message)
+
 
 # Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
