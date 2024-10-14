@@ -7,7 +7,7 @@ from tkinter import ttk, filedialog, simpledialog, messagebox
 
 import pytesseract
 
-from card_saving_and_loading import start_script, ImageFilesNotFoundError
+from card_saving_and_loading import start_script, ImageFilesNotFoundError, CardsNotFoundError
 
 
 def main():
@@ -440,6 +440,8 @@ def main():
                     line_width=int(config["line_width"]),
                 )
             except ImageFilesNotFoundError as e:
+                messagebox.showerror("Error", str(e))
+            except CardsNotFoundError as e:
                 messagebox.showerror("Error", str(e))
             finally:
                 progress_window.destroy()

@@ -16,6 +16,13 @@ class ImageFilesNotFoundError(Exception):
         self.message = message
         super().__init__(self.message)
 
+class CardsNotFoundError(Exception):
+    """Raised when no cards are found in the TTS Saved Object data."""
+
+    def __init__(self, message="No cards were found in the TTS Saved Object data. No output was generated."):
+        self.message = message
+        super().__init__(self.message)
+
 # Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
     "A4": (2480, 3508),
@@ -408,6 +415,8 @@ def start_script(
             cachepath,
             exclude_card_backs,
         )
+        if not images:
+            raise CardsNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images")
     else:
         images = []
