@@ -533,6 +533,11 @@ def main():
     )
     start_button.grid(column=0, row=7, sticky=tk.W)
 
+    donation_button = ttk.Button(
+        main_frame, text="Support the Developer", command=lambda: webbrowser.open("https://ko-fi.com/cyberviber")
+    )
+    donation_button.grid(column=1, row=7, sticky=tk.W)
+
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
         child.grid_configure(padx=5, pady=5)
