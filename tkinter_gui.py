@@ -134,7 +134,7 @@ def main():
     menubar = tk.Menu(root)
     root.config(menu=menubar)
 
-    # Create a file menu
+    # Create a File menu
     file_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="File", menu=file_menu)
     file_menu.add_command(label="Select TTS Object file", command=select_file)
@@ -142,7 +142,7 @@ def main():
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.quit)
 
-    # Create a settings menu
+    # Create a Settings menu
     settings_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="Settings", menu=settings_menu)
     settings_menu.add_command(label="Change Bleed Width", command=change_bleed_width)
@@ -162,7 +162,7 @@ def main():
         )
     )
 
-    # Create an about menu
+    # Create an About menu
     about_menu = tk.Menu(menubar, tearoff=0)
     menubar.add_cascade(label="About", menu=about_menu)
     about_menu.add_command(
@@ -176,6 +176,14 @@ def main():
     about_menu.add_command(
         label="Support the Developer",
         command=lambda: webbrowser.open("https://ko-fi.com/cyberviber")
+    )
+
+    # Create a Learn menu
+    learn_menu = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Learn", menu=learn_menu)
+    learn_menu.add_command(
+        label="Tutorial Videos on YouTube",
+        command=lambda: webbrowser.open("https://www.youtube.com/")
     )
 
     # Create a balloon widget for tooltips
