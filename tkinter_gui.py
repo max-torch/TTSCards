@@ -183,7 +183,7 @@ def main():
     menubar.add_cascade(label="Learn", menu=learn_menu)
     learn_menu.add_command(
         label="Tutorial Videos on YouTube",
-        command=lambda: webbrowser.open("https://www.youtube.com/")
+        command=lambda: webbrowser.open("https://www.youtube.com/channel/UC6ndLpnFI0BP4UcBD8aHtjg")
     )
 
     # Create a balloon widget for tooltips
