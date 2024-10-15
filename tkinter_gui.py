@@ -6,10 +6,10 @@ import tkinter as tk
 import webbrowser
 from tkinter import ttk, filedialog, simpledialog, messagebox
 
-import Pmw
 import pytesseract
 
 from card_saving_and_loading import start_script, ImageFilesNotFoundError, CardsNotFoundError
+from tooltip import Tooltip
 
 
 def main():
@@ -66,7 +66,6 @@ def main():
     root.resizable(False, False)
     style = ttk.Style()
     style.theme_use("alt")
-    Pmw.initialise(root)
 
     path_string = config["path"] if "path" in config else "No file or folder selected"
     path = tk.StringVar(value=path_string)
@@ -130,6 +129,9 @@ def main():
             config["cachepath"] = selected_cachepath
             save_user_settings(config)
 
+    # Setup tooltips
+    tooltips = []
+
     # Create a menu bar
     menubar = tk.Menu(root)
     root.config(menu=menubar)
@@ -156,7 +158,7 @@ def main():
         label="Show Tooltips",
         variable=show_tooltips,
         command=lambda: (
-            balloon.configure(state="both" if show_tooltips.get() else "none"),
+            [tooltip.enable() for tooltip in tooltips] if show_tooltips.get() else [tooltip.disable() for tooltip in tooltips],
             config.update({"show_tooltips": show_tooltips.get()}),
             save_user_settings(config)
         )
@@ -186,11 +188,6 @@ def main():
         command=lambda: webbrowser.open("https://www.youtube.com/channel/UC6ndLpnFI0BP4UcBD8aHtjg")
     )
 
-    # Create a balloon widget for tooltips
-    balloon = Pmw.Balloon(root)
-    # Set the initial state of the balloon widget based on the `show_tooltips` setting
-    balloon.configure(state="both" if show_tooltips.get() else "none")
-
     # Create a main frame that uses a grid layout
     main_frame = ttk.Frame(root, padding="3 3 12 12")
     main_frame.grid(column=0, row=0, sticky="nsew")
@@ -205,14 +202,14 @@ def main():
     # Display the selected file or folder path
     path_header_label = ttk.Label(path_display_frame, text="Selected file or folder:")
     path_header_label.grid(column=0, row=0, sticky=tk.W)
-    balloon.bind(path_header_label,
-                 "Select either a TTS object file (.json) or a folder containing images of cards (.png, .jpg, .jpeg).")
+    tooltips.append(Tooltip(path_header_label,
+                 "Select either a TTS object file (.json) or a folder containing images of cards (.png, .jpg, .jpeg)."))
     path_frame = ttk.Frame(path_display_frame, relief=tk.SUNKEN, borderwidth=1)
     path_frame.grid(column=0, row=1, sticky=tk.W)
     path_label = ttk.Label(path_frame, textvariable=path, wraplength=250)
     path_label.grid(column=0, row=0, sticky=tk.W)
-    balloon.bind(path_frame,
-                 "Select either a TTS object file (.json) or a folder containing images of cards (.png, .jpg, .jpeg). The expected TTS Object is either a card, a deck of cards, or a bag containing cards or decks.")
+    tooltips.append(Tooltip(path_frame,
+                 "Select either a TTS object file (.json) or a folder containing images of cards (.png, .jpg, .jpeg). The expected TTS Object is either a card, a deck of cards, or a bag containing cards or decks."))
 
     # Create radio buttons for the preset image size
     preset_image_size = tk.StringVar(value="standard")
@@ -243,8 +240,8 @@ def main():
     custom_card_length_label.grid(column=0, row=0, sticky=tk.W)
     custom_card_length_entry = ttk.Entry(custom_card_size_frame, textvariable=custom_card_length)
     custom_card_length_entry.grid(column=1, row=0, sticky=tk.W)
-    balloon.bind(custom_card_size_frame,
-                 "If set to 0, the selected preset card size will be used. Otherwise if you enter a value, the custom card length will be used. When resizing, the aspect ratio is maintained.")
+    tooltips.append(Tooltip(custom_card_size_frame,
+                 "If set to 0, the selected preset card size will be used. Otherwise if you enter a value, the custom card length will be used. When resizing, the aspect ratio is maintained."))
 
     # Create a dropdown list for the sheet size
     sheet_size = tk.StringVar(value="Letter")
@@ -272,8 +269,8 @@ def main():
     custom_sheet_length_label.grid(column=0, row=1, sticky=tk.W)
     custom_sheet_length_entry = ttk.Entry(custom_sheet_size_frame, textvariable=custom_sheet_length)
     custom_sheet_length_entry.grid(column=1, row=1, sticky=tk.W)
-    balloon.bind(custom_sheet_size_frame,
-                 "If set to 0, the selected preset sheet size will be used. Otherwise if you enter a value, the custom sheet size will be used.")
+    tooltips.append(Tooltip(custom_sheet_size_frame,
+                 "If set to 0, the selected preset sheet size will be used. Otherwise if you enter a value, the custom sheet size will be used."))
 
     # Create entry fields for the margin size and dpi
     gutter_margin_size = tk.DoubleVar(value=3.175)
@@ -287,14 +284,14 @@ def main():
         margin_dpi_frame, textvariable=gutter_margin_size
     )
     gutter_margin_size_entry.grid(column=1, row=0, sticky=tk.W)
-    balloon.bind(gutter_margin_size_entry, "Gutter margin refers to the space in between cards on the sheet.")
+    tooltips.append(Tooltip(gutter_margin_size_entry, "Gutter margin refers to the space in between cards on the sheet."))
 
     dpi_label = ttk.Label(margin_dpi_frame, text="DPI:")
     dpi_label.grid(column=0, row=1, sticky=tk.W)
     dpi_entry = ttk.Entry(margin_dpi_frame, textvariable=dpi)
     dpi_entry.grid(column=1, row=1, sticky=tk.W)
-    balloon.bind(dpi_entry,
-                 "DPI (dots per inch) is the resolution of the output PDF file. Higher DPI values result in higher quality images but larger file sizes.")
+    tooltips.append(Tooltip(dpi_entry,
+                 "DPI (dots per inch) is the resolution of the output PDF file. Higher DPI values result in higher quality images but larger file sizes."))
 
     # Create checkboxes for the Additional Options
     verbose = tk.BooleanVar(value=True)
@@ -318,7 +315,7 @@ def main():
         additional_options_frame, text="Verbose Console Output", variable=verbose
     )
     verbose_checkbox.grid(column=0, row=0, sticky=tk.W)
-    balloon.bind(verbose_checkbox, "The console output will have more details.")
+    tooltips.append(Tooltip(verbose_checkbox, "The console output will have more details."))
 
     process_nested_containers_checkbox = ttk.Checkbutton(
         additional_options_frame,
@@ -326,7 +323,7 @@ def main():
         variable=process_nested_containers,
     )
     process_nested_containers_checkbox.grid(column=0, row=1, sticky=tk.W)
-    balloon.bind(process_nested_containers_checkbox, "Bags that are nested within other bags will be processed.")
+    tooltips.append(Tooltip(process_nested_containers_checkbox, "Bags that are nested within other bags will be processed."))
 
     exclude_card_urls_checkbox = ttk.Checkbutton(
         additional_options_frame,
@@ -334,8 +331,8 @@ def main():
         variable=exclude_card_urls,
     )
     exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
-    balloon.bind(exclude_card_urls_checkbox,
-                 "You can create a file named `image_blacklist.txt` in the application directory and list the URLs of the card images you want to exclude from the output, where each URL is on separate lines. You have to look in the TTS object file to find the specific URLs of the card images.")
+    tooltips.append(Tooltip(exclude_card_urls_checkbox,
+                 "You can create a file named `image_blacklist.txt` in the application directory and list the URLs of the card images you want to exclude from the output, where each URL is on separate lines. You have to look in the TTS object file to find the specific URLs of the card images."))
 
     exclude_card_backs_checkbox = ttk.Checkbutton(
         additional_options_frame,
@@ -343,14 +340,14 @@ def main():
         variable=exclude_card_backs,
     )
     exclude_card_backs_checkbox.grid(column=0, row=3, sticky=tk.W)
-    balloon.bind(exclude_card_backs_checkbox, "All card backs will be excluded from the output")
+    tooltips.append(Tooltip(exclude_card_backs_checkbox, "All card backs will be excluded from the output"))
 
     save_images_checkbox = ttk.Checkbutton(
         additional_options_frame, text="Save Images to File", variable=save_images
     )
     save_images_checkbox.grid(column=0, row=4, sticky=tk.W)
-    balloon.bind(save_images_checkbox,
-                 "The card images will be saved to a folder named 'output/img' in the same directory as this application.")
+    tooltips.append(Tooltip(save_images_checkbox,
+                 "The card images will be saved to a folder named 'output/img' in the same directory as this application."))
 
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
@@ -363,8 +360,8 @@ def main():
         variable=generate_bleed,
     )
     generate_bleed_checkbox.grid(column=0, row=1, sticky=tk.W)
-    balloon.bind(generate_bleed_checkbox,
-                 "A bleed area will be generated around the card images by mirroring the pixels at the edges of the card images. The bleed width can be configured in the Settings menu.")
+    tooltips.append(Tooltip(generate_bleed_checkbox,
+                 "A bleed area will be generated around the card images by mirroring the pixels at the edges of the card images. The bleed width can be configured in the Settings menu."))
 
     sharpen_text_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -372,15 +369,15 @@ def main():
         variable=sharpen_text,
     )
     sharpen_text_checkbox.grid(column=0, row=2, sticky=tk.W)
-    balloon.bind(sharpen_text_checkbox,
-                 "The text in the card images will be sharpened using Tesseract OCR and OpenCV. This option requires Tesseract to be installed and added to PATH.")
+    tooltips.append(Tooltip(sharpen_text_checkbox,
+                 "The text in the card images will be sharpened using Tesseract OCR and OpenCV. This option requires Tesseract to be installed and added to PATH."))
 
     draw_cut_lines_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame, text="Draw Cut Lines", variable=draw_cut_lines
     )
     draw_cut_lines_checkbox.grid(column=0, row=3, sticky=tk.W)
-    balloon.bind(draw_cut_lines_checkbox,
-                 "Cut lines that can make it easier to cut the cards will be drawn on the output PDF file.")
+    tooltips.append(Tooltip(draw_cut_lines_checkbox,
+                 "Cut lines that can make it easier to cut the cards will be drawn on the output PDF file."))
 
     cut_lines_on_margin_only_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -388,8 +385,8 @@ def main():
         variable=cut_lines_on_margin_only,
     )
     cut_lines_on_margin_only_checkbox.grid(column=0, row=4, sticky=tk.W)
-    balloon.bind(cut_lines_on_margin_only_checkbox,
-                 "Cut lines will only be drawn on the margins of the sheet, instead of going through the cards and the bleed area.")
+    tooltips.append(Tooltip(cut_lines_on_margin_only_checkbox,
+                 "Cut lines will only be drawn on the margins of the sheet, instead of going through the cards and the bleed area."))
 
     no_cut_lines_on_last_sheet_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -397,8 +394,8 @@ def main():
         variable=no_cut_lines_on_last_sheet,
     )
     no_cut_lines_on_last_sheet_checkbox.grid(column=0, row=5, sticky=tk.W)
-    balloon.bind(no_cut_lines_on_last_sheet_checkbox,
-                 "Cut lines will not be drawn on the last sheet of the output PDF file. This is useful if the last sheet only has a few cards and you want to reuse the remaining paper space for another print.")
+    tooltips.append(Tooltip(no_cut_lines_on_last_sheet_checkbox,
+                 "Cut lines will not be drawn on the last sheet of the output PDF file. This is useful if the last sheet only has a few cards and you want to reuse the remaining paper space for another print."))
 
     skip_pdf_generation_checkbox = ttk.Checkbutton(
         pdf_generation_options_frame,
@@ -406,8 +403,8 @@ def main():
         variable=skip_pdf_generation,
     )
     skip_pdf_generation_checkbox.grid(column=0, row=6, sticky=tk.W)
-    balloon.bind(skip_pdf_generation_checkbox,
-                 "The PDF generation process will be skipped. You can use this together with the 'Save Images to File' option to verify that the correct card images are being loaded. You can make adjustments by moving/deleting any of the images.")
+    tooltips.append(Tooltip(skip_pdf_generation_checkbox,
+                 "The PDF generation process will be skipped. You can use this together with the 'Save Images to File' option to verify that the correct card images are being loaded. You can make adjustments by moving/deleting any of the images."))
 
     split_double_and_single_frame = ttk.LabelFrame(
         pdf_generation_options_frame,
@@ -421,8 +418,8 @@ def main():
         variable=split_double_and_single,
     )
     split_double_and_single_checkbox.grid(column=0, row=0, sticky=tk.W, padx=0)
-    balloon.bind(split_double_and_single_checkbox,
-                 "Two PDF files will be generated: one for double-sided cards and one for single-sided cards.")
+    tooltips.append(Tooltip(split_double_and_single_checkbox,
+                 "Two PDF files will be generated: one for double-sided cards and one for single-sided cards."))
 
     double_only_checkbox = ttk.Checkbutton(
         split_double_and_single_frame,
@@ -430,7 +427,7 @@ def main():
         variable=double_only,
     )
     double_only_checkbox.grid(column=0, row=1, sticky=tk.W, padx=20)
-    balloon.bind(double_only_checkbox, "Generate only the PDF for the double-sided cards.")
+    tooltips.append(Tooltip(double_only_checkbox, "Generate only the PDF for the double-sided cards."))
 
     single_only_checkbox = ttk.Checkbutton(
         split_double_and_single_frame,
@@ -438,7 +435,7 @@ def main():
         variable=single_only,
     )
     single_only_checkbox.grid(column=0, row=2, sticky=tk.W, padx=20)
-    balloon.bind(single_only_checkbox, "Generate only the PDF for the single-sided cards.")
+    tooltips.append(Tooltip(single_only_checkbox, "Generate only the PDF for the single-sided cards."))
 
     # Create a button to start the script
     def start_script_wrapper():
@@ -549,6 +546,10 @@ def main():
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
         child.grid_configure(padx=5, pady=5)
+
+    # Set the initial state of tooltips based on the `show_tooltips` setting
+    if not show_tooltips.get():
+        [tooltip.disable() for tooltip in tooltips]
 
     logger.info("GUI loaded")
 
