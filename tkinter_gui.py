@@ -172,7 +172,7 @@ def main():
             "This application converts Tabletop Simulator (TTS) cards to PDF files. You are responsible for how you use this software.\n\nThe following open-source libraries are used in this application:\n- Pillow\n- PyTesseract\n- OpenCV\n- TkInter\n\nThis application is not affiliated with Tabletop Simulator or Berserk Games."
         ),
     )
-    # Add a command to donate, with a donate button that can be clicked to go directly to the paypal page
+    # Add a command to donate, with a donate button that can be clicked to go directly to the Ko-fi page
     about_menu.add_command(
         label="Support the Developer",
         command=lambda: webbrowser.open("https://ko-fi.com/cyberviber")
