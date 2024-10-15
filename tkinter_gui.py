@@ -151,7 +151,6 @@ def main():
     )
     # add a command to toggle the displaying of hover tooltips
     show_tooltips = tk.BooleanVar(value=config.get("show_tooltips", True))
-    print(f"show_tooltips: {show_tooltips.get()}")
     settings_menu.add_checkbutton(
         label="Show Tooltips",
         variable=show_tooltips,
@@ -394,7 +393,7 @@ def main():
     )
     skip_pdf_generation_checkbox.grid(column=0, row=6, sticky=tk.W)
     balloon.bind(skip_pdf_generation_checkbox,
-                 "The PDF generation process will be skipped. You can use this together with the 'Save Images to File' option to verify that the correct card images are being loaded")
+                 "The PDF generation process will be skipped. You can use this together with the 'Save Images to File' option to verify that the correct card images are being loaded. You can make adjustments by moving/deleting any of the images.")
 
     split_double_and_single_frame = ttk.LabelFrame(
         pdf_generation_options_frame,
