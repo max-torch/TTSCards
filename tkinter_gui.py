@@ -64,6 +64,7 @@ def main():
     root = tk.Tk()
     root.title("TTSCards")
     root.resizable(False, False)
+    root.iconbitmap("./assets/ttscards_app_icon.ico")
     style = ttk.Style()
     style.theme_use("alt")
 
