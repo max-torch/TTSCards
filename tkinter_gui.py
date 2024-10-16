@@ -3,6 +3,7 @@ import logging
 import os
 import platform
 import subprocess
+import sys
 import threading
 import tkinter as tk
 import webbrowser
@@ -80,7 +81,12 @@ def main():
     root = tk.Tk()
     root.title("TTSCards")
     root.resizable(False, False)
-    root.iconbitmap("./assets/ttscards_app_icon.ico")
+    if platform.system() == "Windows":
+        # root.iconbitmap("./assets/ttscards_app_icon.ico")
+        root.iconbitmap(sys.executable)
+    else:
+        img = tk.PhotoImage(file="./assets/ttscards_mark.png")
+        root.tk.call("wm", "iconphoto", root._w, img)
     style = ttk.Style()
     style.theme_use("alt")
 
