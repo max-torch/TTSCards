@@ -507,6 +507,7 @@ def main():
             """
             try:
                 start_script(
+                    os_output_dir,
                     path.get(),
                     config["cachepath"],
                     preset_image_size.get(),

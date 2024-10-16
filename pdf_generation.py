@@ -372,7 +372,8 @@ def generate_pdf(
         sheets.append(sheet)
 
     # Generate a PDF file from the sheets
-    pdf_filename = os.path.join(f"{output_dir}/pdf", filename)
+    pdf_dir = os.path.join(output_dir, "pdf")
+    pdf_filename = os.path.join(pdf_dir, filename)
     os.makedirs(f"{output_dir}/pdf", exist_ok=True)
     sheets[0].save(
         pdf_filename,

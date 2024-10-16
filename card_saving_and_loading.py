@@ -307,6 +307,7 @@ def load_images(output_directory: str) -> list[dict]:
 
 
 def start_script(
+        os_output_dir: str,
         path: str,
         cachepath: str,
         preset_image_size: str,
@@ -392,7 +393,7 @@ def start_script(
     logger.debug(f"bleed_width: {bleed_width}")
     logger.debug(f"line_width: {line_width}")
 
-    output_directory = "./output"
+    output_directory = os_output_dir
     os.makedirs(output_directory, exist_ok=True)
 
     try:
