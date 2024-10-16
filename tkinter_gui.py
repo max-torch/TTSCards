@@ -82,7 +82,6 @@ def main():
     root.title("TTSCards")
     root.resizable(False, False)
     if platform.system() == "Windows":
-        # root.iconbitmap("./assets/ttscards_app_icon.ico")
         root.iconbitmap(sys.executable)
     else:
         img = tk.PhotoImage(file="./assets/ttscards_mark.png")
