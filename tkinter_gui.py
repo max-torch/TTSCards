@@ -361,7 +361,7 @@ def main():
     )
     exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
     tooltips.append(Tooltip(exclude_card_urls_checkbox,
-                            "You can create a file named `image_blacklist.txt` in the application directory and list the URLs of the card images you want to exclude from the output, where each URL is on separate lines. You have to look in the TTS object file to find the specific URLs of the card images."))
+                            "You can create a file named `image_blacklist.txt` in the Output Folder and list the URLs of the card images you want to exclude from the output, where each URL is on separate lines. You have to look in the TTS object file to find the specific URLs of the card images."))
 
     exclude_card_backs_checkbox = ttk.Checkbutton(
         additional_options_frame,

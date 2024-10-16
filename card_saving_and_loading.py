@@ -398,7 +398,8 @@ def start_script(
     os.makedirs(output_directory, exist_ok=True)
 
     try:
-        with open("image_blacklist.txt", "r") as file:
+        blacklist_path = os.path.join(output_directory, "image_blacklist.txt")
+        with open(blacklist_path, "r") as file:
             blacklist = file.read().splitlines() if exclude_card_urls else []
     except FileNotFoundError:
         blacklist = []
