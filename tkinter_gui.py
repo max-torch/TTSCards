@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import platform
+import subprocess
 import threading
 import tkinter as tk
 import webbrowser
@@ -41,9 +43,24 @@ def main():
 
     logger.info("Loading GUI...")
 
+    # Get output directory based on OS
+    app_name = "TTSCards"
+    if platform.system() == "Windows":
+        os_output_dir = os.path.join(os.path.expanduser("~"), "Documents", app_name)
+    elif platform.system() == "Darwin":
+        os_output_dir = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', app_name)
+    elif platform.system() == "Linux":
+        os_output_dir = os.path.join(os.path.expanduser('~'), '.local', 'share', app_name)
+    else:
+        raise NotImplementedError("Unsupported OS")
+
+    os.makedirs(os_output_dir, exist_ok=True)
+    config_dir = os.path.join(os_output_dir, "config.json")
+    print(f"Config directory: {config_dir}")
+
     def load_user_settings() -> dict:
-        if os.path.exists("config.json"):
-            with open("config.json", "r") as f:
+        if os.path.exists(config_dir):
+            with open(config_dir, "r") as f:
                 return json.load(f)
         else:
             return {
@@ -55,7 +72,7 @@ def main():
     config = load_user_settings()
 
     def save_user_settings(user_config: dict):
-        with open("config.json", "w") as f:
+        with open(config_dir, "w") as f:
             # Erroneous flagging of a problem by PyCharm. See https://stackoverflow.com/questions/79049420/python3-pickle-expected-type-supportswritebytes-got-binaryio-instead
             # noinspection PyTypeChecker
             json.dump(user_config, f, indent=4)
@@ -130,6 +147,14 @@ def main():
             config["cachepath"] = selected_cachepath
             save_user_settings(config)
 
+    def open_output_folder():
+        if platform.system() == "Windows":
+            os.startfile(os_output_dir)
+        elif platform.system() == "Darwin":
+            subprocess.Popen(["open", os_output_dir])
+        else:
+            subprocess.Popen(["xdg-open", os_output_dir])
+
     # Setup tooltips
     tooltips = []
 
@@ -142,6 +167,7 @@ def main():
     menubar.add_cascade(label="File", menu=file_menu)
     file_menu.add_command(label="Select TTS Object file", command=select_file)
     file_menu.add_command(label="Select Images Folder", command=select_images_folder)
+    file_menu.add_command(label="Open Output Folder", command=open_output_folder)
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.quit)
 
