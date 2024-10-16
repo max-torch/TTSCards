@@ -1,13 +1,12 @@
-from collections import namedtuple
 import logging
 import os
 import webbrowser
+from collections import namedtuple
 
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw
 import pytesseract
-
+from PIL import Image, ImageDraw
 
 Size = namedtuple("Size", ["width", "length"])
 
@@ -40,16 +39,16 @@ def generate_bleed_for_image(image: Image.Image, bleed_size: int) -> Image.Image
     new_image.paste(image, (bleed_size, bleed_size))
 
     # Paste the mirrored over rectangular regions onto the new image
-    new_image.paste(left_region.transpose(Image.FLIP_LEFT_RIGHT), (0, bleed_size))
+    new_image.paste(left_region.transpose(Image.Transpose.FLIP_LEFT_RIGHT), (0, bleed_size))
     new_image.paste(
-        bottom_region.transpose(Image.FLIP_TOP_BOTTOM),
+        bottom_region.transpose(Image.Transpose.FLIP_TOP_BOTTOM),
         (bleed_size, image.height + bleed_size),
     )
     new_image.paste(
-        right_region.transpose(Image.FLIP_LEFT_RIGHT),
+        right_region.transpose(Image.Transpose.FLIP_LEFT_RIGHT),
         (image.width + bleed_size, bleed_size),
     )
-    new_image.paste(top_region.transpose(Image.FLIP_TOP_BOTTOM), (bleed_size, 0))
+    new_image.paste(top_region.transpose(Image.Transpose.FLIP_TOP_BOTTOM), (bleed_size, 0))
 
     return new_image
 
@@ -81,7 +80,7 @@ def sharpen_text_on_image(image: Image.Image) -> Image.Image:
             data["width"][i],
             data["height"][i],
         )
-        mask[y : y + h, x : x + w] = 1
+        mask[y: y + h, x: x + w] = 1
 
     # Sharpen the entire image
     blurred = cv2.GaussianBlur(image_cv, (3, 3), 0)
@@ -97,19 +96,19 @@ def sharpen_text_on_image(image: Image.Image) -> Image.Image:
 
 
 def draw_cut_lines_on_sheet(
-    generate_bleed: bool,
-    converted_card_length: int,
-    converted_sheet_size: tuple[int, int],
-    converted_gutter_margin_size: int,
-    card_width: int,
-    no_bleed_card_size: Size,
-    converted_bleed_size: int,
-    num_cards_x: int,
-    num_cards_y: int,
-    start_x: int,
-    start_y: int,
-    sheet: Image.Image,
-    line_width: int = 1,
+        generate_bleed: bool,
+        converted_card_length: int,
+        converted_sheet_size: tuple[int, int],
+        converted_gutter_margin_size: int,
+        card_width: int,
+        no_bleed_card_size: Size,
+        converted_bleed_size: int,
+        num_cards_x: int,
+        num_cards_y: int,
+        start_x: int,
+        start_y: int,
+        sheet: Image.Image,
+        line_width: int = 1,
 ) -> None:
     """
     Draws cut lines on a sheet for card printing.
@@ -142,9 +141,9 @@ def draw_cut_lines_on_sheet(
     # top edge of cards
     for j in range(num_cards_y):
         y = (
-            start_y
-            + bleed_adjustment
-            + j * (converted_card_length + converted_gutter_margin_size)
+                start_y
+                + bleed_adjustment
+                + j * (converted_card_length + converted_gutter_margin_size)
         )
         draw.line(
             [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
@@ -155,10 +154,10 @@ def draw_cut_lines_on_sheet(
     # bottom edge of cards
     for j in range(num_cards_y):
         y = (
-            start_y
-            + bleed_adjustment
-            + no_bleed_card_size.length
-            + j * (converted_card_length + converted_gutter_margin_size)
+                start_y
+                + bleed_adjustment
+                + no_bleed_card_size.length
+                + j * (converted_card_length + converted_gutter_margin_size)
         )
         draw.line(
             [(small_margin, y), (converted_sheet_size[0] - small_margin, y)],
@@ -178,10 +177,10 @@ def draw_cut_lines_on_sheet(
     # right edge of cards
     for j in range(num_cards_x):
         x = (
-            start_x
-            + bleed_adjustment
-            + no_bleed_card_size.width
-            + j * (card_width + converted_gutter_margin_size)
+                start_x
+                + bleed_adjustment
+                + no_bleed_card_size.width
+                + j * (card_width + converted_gutter_margin_size)
         )
         draw.line(
             [(x, small_margin), (x, converted_sheet_size[1] - small_margin)],
@@ -191,21 +190,21 @@ def draw_cut_lines_on_sheet(
 
 
 def generate_pdf(
-    images: list[Image.Image],
-    output_dir: str,
-    sheet_size: tuple,
-    card_length: int,
-    dpi: int,
-    logger: logging.Logger,
-    draw_cut_lines: bool,
-    generate_bleed: bool,
-    sharpen_text: bool,
-    gutter_margin_size: float,
-    filename: str,
-    cut_lines_on_margin_only: bool,
-    no_cut_lines_on_last_sheet: bool = False,
-    bleed_width: float = 1.5,
-    line_width: int = 1,
+        images: list[Image.Image],
+        output_dir: str,
+        sheet_size: tuple,
+        card_length: float,
+        dpi: int,
+        logger: logging.Logger,
+        draw_cut_lines: bool,
+        generate_bleed: bool,
+        sharpen_text: bool,
+        gutter_margin_size: float,
+        filename: str,
+        cut_lines_on_margin_only: bool,
+        no_cut_lines_on_last_sheet: bool = False,
+        bleed_width: float = 1.5,
+        line_width: int = 1,
 ):
     """
     Generate a PDF file from a list of images.
@@ -214,7 +213,7 @@ def generate_pdf(
         images (list[Image.Image]): A list of PIL Image objects representing the cards.
         output_dir (str): The directory to save the generated PDF file.
         sheet_size (tuple): The size of the sheet in pixels at 300dpi.
-        card_length (int): The length of the card in pixels at 300dpi.
+        card_length (float): The length of the card in mm.
         dpi (int): The desired DPI for the output PDF file.
         logger (logging.Logger): The logger object.
         draw_cut_lines (bool): Whether to draw cut lines on the PDF.
@@ -223,15 +222,17 @@ def generate_pdf(
         gutter_margin_size (float): The size of the margin between cards in mm.
         filename (str): The name of the output PDF file.
         cut_lines_on_margin_only (bool): Whether to draw cut lines only on the margin.
-        bleed_size (float, optional): The size of the bleed in mm. Defaults to 2.0.
+        bleed_width (float, optional): The size of the bleed in mm. Defaults to 2.0.
         no_cut_lines_on_last_sheet (bool, optional): Whether to omit cut lines on the last sheet. Defaults to False.
+        line_width (int, optional): The width of the cut lines in pixels. Defaults to 1.
 
     Returns:
         None
     """
 
     # Convert card length, sheet size, and gutter margin size to pixels at the desired DPI
-    converted_card_length = int(card_length * dpi / 300)
+    logger.debug(f"Card length: {card_length}")
+    converted_card_length = int(card_length * dpi / 25.4)
     converted_sheet_size = (
         int(sheet_size[0] * dpi / 300),
         int(sheet_size[1] * dpi / 300),
@@ -263,11 +264,11 @@ def generate_pdf(
 
     # Calculate the number of cards that can fit on the sheet
     num_cards_x = (
-        converted_sheet_size[0] - 2 * converted_gutter_margin_size
-    ) // card_width
+                          converted_sheet_size[0] - 2 * converted_gutter_margin_size
+                  ) // card_width
     num_cards_y = (
-        converted_sheet_size[1] - 2 * converted_gutter_margin_size
-    ) // converted_card_length
+                          converted_sheet_size[1] - 2 * converted_gutter_margin_size
+                  ) // converted_card_length
 
     if num_cards_x == 0 or num_cards_y == 0:
         logger.error(
@@ -277,7 +278,7 @@ def generate_pdf(
 
     # Calculate the number of sheets required to fit all the cards
     num_sheets = (len(images) + num_cards_x * num_cards_y - 1) // (
-        num_cards_x * num_cards_y
+            num_cards_x * num_cards_y
     )
 
     # Calculate the size of the entire grid of cards, including gutters
@@ -298,9 +299,9 @@ def generate_pdf(
         sheet = Image.new("RGB", converted_sheet_size, "white")
 
         if (
-            draw_cut_lines
-            and cut_lines_on_margin_only
-            and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
+                draw_cut_lines
+                and cut_lines_on_margin_only
+                and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
         ):
             draw_cut_lines_on_sheet(
                 generate_bleed,
@@ -325,7 +326,7 @@ def generate_pdf(
             card = images[i * num_cards_x * num_cards_y + j]
 
             # Resize the card to the desired length while maintaining aspect ratio
-            card = card.resize(no_bleed_card_size, Image.LANCZOS)
+            card = card.resize(no_bleed_card_size, Image.Resampling.LANCZOS)
 
             # Sharpen text on the card
             if sharpen_text:
@@ -337,10 +338,10 @@ def generate_pdf(
 
             # Paste the card onto the sheet
             x = start_x + (j % num_cards_x) * (
-                card_width + converted_gutter_margin_size
+                    card_width + converted_gutter_margin_size
             )
             y = start_y + (j // num_cards_x) * (
-                converted_card_length + converted_gutter_margin_size
+                    converted_card_length + converted_gutter_margin_size
             )
             logger.debug(
                 f"Pasting card {i * num_cards_x * num_cards_y + j} at ({x}, {y})"
@@ -348,9 +349,9 @@ def generate_pdf(
             sheet.paste(card, (x, y))
 
         if (
-            draw_cut_lines
-            and not cut_lines_on_margin_only
-            and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
+                draw_cut_lines
+                and not cut_lines_on_margin_only
+                and (not no_cut_lines_on_last_sheet or i < num_sheets - 1)
         ):
             draw_cut_lines_on_sheet(
                 generate_bleed,
@@ -371,7 +372,8 @@ def generate_pdf(
         sheets.append(sheet)
 
     # Generate a PDF file from the sheets
-    pdf_filename = os.path.join(f"{output_dir}/pdf", filename)
+    pdf_dir = os.path.join(output_dir, "pdf")
+    pdf_filename = os.path.join(pdf_dir, filename)
     os.makedirs(f"{output_dir}/pdf", exist_ok=True)
     sheets[0].save(
         pdf_filename,

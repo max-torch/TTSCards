@@ -9,6 +9,23 @@ from PIL import Image
 from pdf_generation import generate_pdf
 
 
+# Define custom exceptions
+class ImageFilesNotFoundError(Exception):
+    """Raised when the image files are not found in the specified directory."""
+
+    def __init__(self, message="No image files were found in the specified directory. No output was generated."):
+        self.message = message
+        super().__init__(self.message)
+
+
+class CardsNotFoundError(Exception):
+    """Raised when no cards are found in the TTS Saved Object data."""
+
+    def __init__(self, message="No cards were found in the TTS Saved Object data. No output was generated."):
+        self.message = message
+        super().__init__(self.message)
+
+
 # Define preset card sizes in pixels at 300dpi
 SHEET_SIZES = {
     "A4": (2480, 3508),
@@ -17,11 +34,11 @@ SHEET_SIZES = {
 }
 CARD_SIZES = {"standard": (734, 1045), "mini": (500, 734)}
 
-
-# Create a logger for callbacks.py
-logger = logging.getLogger("callbacks")
+# Create a logger for card_saving_and_loading.py
+logger = logging.getLogger("main")
 handler = logging.StreamHandler()
-formatter = logging.Formatter("%(name)s - %(levelname)s - %(message)s")
+formatter = logging.Formatter(
+    "%(levelname)s: %(message)s")  # noqa; because the levelname is not a typo in this context
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
@@ -81,7 +98,7 @@ def download_image(url: str, blacklist: list[str], cache_folder: str) -> Image:
 
 
 def crop_from_sprite_sheet(
-    sprite_sheet: Image, num_width: int, num_height: int, card_id: int
+        sprite_sheet: Image, num_width: int, num_height: int, card_id: int
 ) -> Image:
     """
     Crop a specific card from a sprite sheet based on its ID.
@@ -115,7 +132,7 @@ def crop_from_sprite_sheet(
     return card
 
 
-def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
+def process_deck(deck: dict, blacklist: list, cachepath: str, exclude_card_backs: bool) -> list[dict]:
     """
     Processes a deck of cards, filtering out blacklisted items and caching images.
 
@@ -123,6 +140,7 @@ def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
         deck (dict): The deck of cards to process, expected to have a "ContainedObjects" key.
         blacklist (list): A list of items to be excluded from processing.
         cachepath (str): The path where cached images should be stored.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing processed card images.
@@ -130,13 +148,13 @@ def process_deck(deck: dict, blacklist: list, cachepath: str) -> list[dict]:
     contained_objects = deck.get("ContainedObjects", {})
     images = []
     for card in contained_objects:
-        card_images = process_card(card, blacklist, cachepath)
+        card_images = process_card(card, blacklist, cachepath, exclude_card_backs)
         images.append(card_images)
     logger.info(f"Processed deck containing {len(images)} cards")
     return images
 
 
-def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
+def process_card(card: dict, blacklist: list, cachepath: str, exclude_card_backs) -> dict:
     """
     Processes a card dictionary to download and split the sprite sheet for the deck.
 
@@ -144,12 +162,13 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
         card (dict): A dictionary containing card information, including "Nickname", "CardID", and "CustomDeck".
         blacklist (list): A list of URLs to be blacklisted from downloading.
         cachepath (str): The path to the cache directory for storing downloaded images.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         dict: A dictionary containing the processed card images with keys "face" and "back".
     """
     nickname = card.get("Nickname", "")
-    card_id = card.get("CardID", "")
+    card_id = card.get("CardID", 0)
     custom_deck = card.get("CustomDeck", {})
     custom_deck_key = list(custom_deck)[0]
     face_url = custom_deck[custom_deck_key].get("FaceURL", "")
@@ -168,14 +187,13 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
             )
             image["face"] = card_face
 
-    if back_url:
+    if back_url and not exclude_card_backs:
         sprite_sheet = download_image(back_url, blacklist, cachepath)
-        # else:
         if unique_back:
             image["back"] = crop_from_sprite_sheet(
                 sprite_sheet, num_width, num_height, card_id + 1000
             )
-        else:
+        elif sprite_sheet:
             image["back"] = sprite_sheet
 
     logger.info(f"Processed card: {nickname}")
@@ -183,7 +201,7 @@ def process_card(card: dict, blacklist: list, cachepath: str) -> dict:
 
 
 def process_bag(
-    bag: dict, blacklist: list, cachepath: str, process_nested: bool
+        bag: dict, blacklist: list, cachepath: str, process_nested: bool, exclude_card_backs: bool
 ) -> list[dict]:
     """
     Processes a bag object, extracting images from contained objects.
@@ -192,28 +210,30 @@ def process_bag(
         bag (dict): The bag object to process.
         blacklist (list): List of blacklisted items to exclude from processing.
         cachepath (str): Path to the cache directory.
+        process_nested (bool): Flag to determine if nested containers should be processed.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing image data extracted from the bag.
     """
     contained_objects = bag.get("ContainedObjects", [])
     images = []
-    for object in contained_objects:
-        if object.get("Name") == "Deck":
-            logger.info(f"Processing deck: {object.get('Nickname', 'Unknown Deck')}")
-            images.extend(process_deck(object, blacklist, cachepath))
-        elif object.get("Name") == "Card":
-            logger.info(f"Processing card: {object.get('Nickname', 'Unknown Card')}")
-            images.append(process_card(object, blacklist, cachepath))
-        elif object.get("Name") == "Bag" and process_nested:
-            logger.info(f"Processing bag: {object.get('Nickname', 'Unknown Bag')}")
-            images.extend(process_bag(object, blacklist, cachepath, process_nested))
+    for tts_object in contained_objects:
+        if tts_object.get("Name") == "Deck":
+            logger.info(f"Processing deck: {tts_object.get('Nickname', 'Unknown Deck')}")
+            images.extend(process_deck(tts_object, blacklist, cachepath, exclude_card_backs))
+        elif tts_object.get("Name") == "Card":
+            logger.info(f"Processing card: {tts_object.get('Nickname', 'Unknown Card')}")
+            images.append(process_card(tts_object, blacklist, cachepath, exclude_card_backs))
+        elif tts_object.get("Name") == "Bag" and process_nested:
+            logger.info(f"Processing bag: {tts_object.get('Nickname', 'Unknown Bag')}")
+            images.extend(process_bag(tts_object, blacklist, cachepath, process_nested, exclude_card_backs))
 
     return images
 
 
 def process_tts_object(
-    tts_object, process_nested_containers, blacklist, cachepath: str
+        tts_object, process_nested_containers, blacklist, cachepath: str, exclude_card_backs: bool,
 ) -> list[dict]:
     """
     Processes a TTS object and its nested objects, extracting images and handling different object types.
@@ -224,6 +244,7 @@ def process_tts_object(
         process_nested_containers (bool): Flag to determine if nested containers should be processed.
         blacklist (list): List of blacklisted items to exclude from processing.
         cachepath (str): Path to the cache directory.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing image data extracted from the container.
@@ -235,14 +256,14 @@ def process_tts_object(
         obj_name = state.get("Name", "")
         if obj_name == "Deck":  # Process deck
             logger.info(f"Processing deck: {state.get('Nickname', 'Unknown Deck')}")
-            images.extend(process_deck(state, blacklist, cachepath))
+            images.extend(process_deck(state, blacklist, cachepath, exclude_card_backs))
         elif obj_name == "Card":  # Process single card
             logger.info(f"Processing card: {state.get('Nickname', 'Unknown Card')}")
-            images.append(process_card(state, blacklist))
+            images.append(process_card(state, blacklist, cachepath, exclude_card_backs))
         elif obj_name == "Bag":  # Process container (Bag)
             logger.info(f"Processing bag: {state.get('Nickname', 'Unknown Bag')}")
             images.extend(
-                process_bag(state, blacklist, cachepath, process_nested_containers)
+                process_bag(state, blacklist, cachepath, process_nested_containers, exclude_card_backs)
             )
         else:
             logger.warning(f"Unknown object type: {obj_name}")
@@ -278,50 +299,59 @@ def load_images(output_directory: str) -> list[dict]:
             images.append({"face": image})
         elif "_back" in filename:
             images.append({"back": image})
+        else:
+            # If the image name doesn't conform, treat is as a face image
+            images.append({"face": image})
 
     return images
 
 
 def start_script(
-    path: str,
-    cachepath: str,
-    preset_image_size: tuple,
-    custom_image_size_width: int,
-    custom_image_size_length: int,
-    sheet_size: tuple,
-    gutter_margin_size: float,
-    dpi: int,
-    verbose: bool,
-    process_nested_containers: bool,
-    exclude_card_urls: bool,
-    generate_bleed: bool,
-    sharpen_text: bool,
-    draw_cut_lines: bool,
-    split_double_and_single: bool,
-    double_only: bool,
-    single_only: bool,
-    save_images: bool,
-    arrange_into_pdf: bool,
-    cut_lines_on_margin_only: bool,
-    no_cut_lines_on_last_sheet: bool,
-    bleed_width: float,
-    line_width: int,
+        output_directory: str,
+        path: str,
+        cachepath: str,
+        preset_image_size: str,
+        custom_image_size_length: float,
+        sheet_size: str,
+        custom_sheet_width: float,
+        custom_sheet_length: float,
+        gutter_margin_size: float,
+        dpi: int,
+        verbose: bool,
+        process_nested_containers: bool,
+        exclude_card_urls: bool,
+        exclude_card_backs: bool,
+        generate_bleed: bool,
+        sharpen_text: bool,
+        draw_cut_lines: bool,
+        split_double_and_single: bool,
+        double_only: bool,
+        single_only: bool,
+        save_images: bool,
+        skip_pdf_generation: bool,
+        cut_lines_on_margin_only: bool,
+        no_cut_lines_on_last_sheet: bool,
+        bleed_width: float,
+        line_width: int,
 ) -> None:
     """
     Starts the script to process images and arrange them into a PDF.
 
     Args:
+        output_directory (str): Path to the output directory
         path (str): Path to the input file containing TTS Saved Object data or folder containing images.
         cachepath (str): Path to the cache directory.
-        preset_image_size (tuple): Preset size of the images.
-        custom_image_size_width (int): Custom width of the images.
-        custom_image_size_length (int): Custom length of the images.
-        sheet_size (tuple): Size of the sheet for the PDF.
+        preset_image_size (str): Preset size of the images.
+        custom_image_size_length (float): Custom length of the images in mm.
+        sheet_size (str): Size of the sheet for the PDF.
+        custom_sheet_width (float): Custom width of the sheet in mm.
+        custom_sheet_length (float): Custom length of the sheet in mm.
         gutter_margin_size (float): Size of the gutter margin.
         dpi (int): Dots per inch for the output PDF.
         verbose (bool): Flag to enable verbose logging.
         process_nested_containers (bool): Flag to process nested containers in the TTS Saved Object.
         exclude_card_urls (bool): Flag to exclude card URLs from processing.
+        exclude_card_backs (bool): Flag to exclude card backs from processing.
         generate_bleed (bool): Flag to generate bleed for the images.
         sharpen_text (bool): Flag to sharpen text in the images.
         draw_cut_lines (bool): Flag to draw cut lines on the images.
@@ -329,7 +359,7 @@ def start_script(
         double_only (bool): Flag to include only double-sided cards.
         single_only (bool): Flag to include only single-sided cards.
         save_images (bool): Flag to save images to the output directory.
-        arrange_into_pdf (bool): Flag to arrange images into a PDF.
+        skip_pdf_generation (bool): Flag to arrange images into a PDF.
         cut_lines_on_margin_only (bool): Flag to draw cut lines only on the margin.
         no_cut_lines_on_last_sheet (bool): Flag to avoid drawing cut lines on the last sheet.
         bleed_width (float): Width of the generated bleed.
@@ -343,10 +373,10 @@ def start_script(
     else:
         logger.setLevel(logging.INFO) if verbose else logger.setLevel(logging.WARNING)
 
+    logger.debug(f"output_directory: {output_directory}")
     logger.debug(f"path: {path}")
     logger.debug(f"cachepath: {cachepath}")
     logger.debug(f"preset_image_size: {preset_image_size}")
-    logger.debug(f"custom_image_size_width: {custom_image_size_width}")
     logger.debug(f"custom_image_size_length: {custom_image_size_length}")
     logger.debug(f"sheet_size: {sheet_size}")
     logger.debug(f"gutter_margin_size: {gutter_margin_size}")
@@ -359,21 +389,26 @@ def start_script(
     logger.debug(f"draw_cut_lines: {draw_cut_lines}")
     logger.debug(f"split_double_and_single: {split_double_and_single}")
     logger.debug(f"save_images: {save_images}")
-    logger.debug(f"arrange_into_pdf: {arrange_into_pdf}")
+    logger.debug(f"skip_pdf_generation: {skip_pdf_generation}")
     logger.debug(f"cut_lines_on_margin_only: {cut_lines_on_margin_only}")
     logger.debug(f"no_cut_lines_on_last_sheet: {no_cut_lines_on_last_sheet}")
     logger.debug(f"bleed_width: {bleed_width}")
     logger.debug(f"line_width: {line_width}")
 
-    output_directory = "./output"
     os.makedirs(output_directory, exist_ok=True)
 
-    with open("image_blacklist.txt", "r") as file:
-        blacklist = file.read().splitlines() if exclude_card_urls else []
+    try:
+        blacklist_path = os.path.join(output_directory, "image_blacklist.txt")
+        with open(blacklist_path, "r") as file:
+            blacklist = file.read().splitlines() if exclude_card_urls else []
+    except FileNotFoundError:
+        blacklist = []
 
     if os.path.isdir(path):
         logger.info("Loading images from directory")
         images = load_images(path)
+        if not images:
+            raise ImageFilesNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images from directory")
     elif os.path.isfile(path):
         with open(path, "r") as file:
@@ -384,9 +419,13 @@ def start_script(
             process_nested_containers,
             blacklist,
             cachepath,
+            exclude_card_backs,
         )
+        if not images:
+            raise CardsNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images")
     else:
+        images = []
         logger.error(f"Invalid path: {path}")
 
     if save_images:
@@ -398,9 +437,9 @@ def start_script(
                     value.save(f"{output_directory}/img/card_{idx}_{key}.png")
         logger.info(f"Images saved to {output_directory}")
 
-    def generate_pdf_wrapper(images, filename):
+    def generate_pdf_wrapper(_images, filename):
         generate_pdf(
-            images,
+            _images,
             output_directory,
             sheet_size,
             image_length,
@@ -417,26 +456,32 @@ def start_script(
             line_width=line_width,
         )
 
-    if arrange_into_pdf:
-        sheet_size = SHEET_SIZES[sheet_size]
-        # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
-        image_size = (
-            CARD_SIZES[preset_image_size]
-            if custom_image_size_width == 0 or custom_image_size_length == 0
-            else (custom_image_size_width, custom_image_size_length)
+    if not skip_pdf_generation:
+        custom_sheet_width_px_at_300dpi = int(custom_sheet_width / 25.4 * 300)
+        custom_sheet_length_px_at_300dpi = int(custom_sheet_length / 25.4 * 300)
+        sheet_size = (
+            SHEET_SIZES[sheet_size]
+            if custom_sheet_width == 0 or custom_sheet_length == 0
+            else (custom_sheet_width_px_at_300dpi, custom_sheet_length_px_at_300dpi)
         )
-        image_length = image_size[1]
-        logger.debug(f"image_size: {image_size}")
+
+        # Create a variable `image_size` and set it to the preset image size if any of the custom image sizes are 0
+        image_length = (
+            CARD_SIZES[preset_image_size][1] / 300 * 25.4
+            if custom_image_size_length == 0
+            else custom_image_size_length
+        )
+        logger.debug(f"image_length: {image_length}")
 
         # Remove keys with None values
         images = [{k: v for k, v in image.items() if v is not None} for image in images]
 
         if split_double_and_single:
-            # if image dict has both face and back keys then it is a double sided card
+            # if image dict has both face and back keys then it is a double-sided card
             double_sided_cards = [
                 image for image in images if "face" in image and "back" in image
             ]
-            # if image dict has only face or only back key then it is a single sided card
+            # if image dict only has a face or a back key then it is a single-sided card
             single_sided_cards = [
                 image for image in images if ("face" in image) ^ ("back" in image)
             ]

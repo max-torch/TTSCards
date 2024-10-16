@@ -1,0 +1,32 @@
+End User License Agreement (EULA)
+This End User License Agreement ("Agreement") is a legal agreement between you (either an individual or an entity) and cyber_viber ("Licensor") for the use of the software titled TTSCards ("Software"). The Developer operates under the pseudonym cyber_viber for purposes of distributing and supporting the Software. By downloading, installing, or using the Software, you agree to be bound by the terms of this Agreement.
+
+1. Grant of License
+Licensor grants you a non-exclusive, non-transferable license to download and use the Software on multiple devices that you own. You may use the Software for personal, commercial, or educational purposes.
+
+2. Payment Model
+You may choose to pay any amount for the Software, with no minimum requirement. While we encourage you to contribute based on the value you receive, payment is optional. The Software will remain accessible regardless of payment, but this policy may change at any time.
+
+3. Redistribution Rights
+You are permitted to redistribute the Software to others, provided that you retain all copyright notices and maintain attribution to the Licensor. Any redistribution must also include this EULA in its entirety, so that recipients are informed of their rights and obligations under this Agreement.
+
+4. Modification and Reverse Engineering
+You are permitted to modify the Software for personal use. Reverse engineering, decompiling, or disassembling the Software is allowed solely for the purpose of learning or making personal modifications.
+
+5. Derivatives from Generated Products
+You are responsible for any generated products created with the software. At your own risk, you may distribute, sell, or otherwise use your generated products in any way you see fit. Licensor is not responsible for any legal issues that may arise from the use of your generated products.
+
+6. No Warranty and Disclaimer of Liability
+The Software is provided "as is," without warranty of any kind. Licensor does not warrant that the Software will meet your requirements, be error-free, or function without interruption. Licensor is not responsible for any data loss, especially if you modify the Software yourself.
+
+In no event shall Licensor be liable for any damages arising from the use of the Software, including but not limited to indirect, incidental, special, or consequential damages.
+
+7. Updates and Support
+Licensor may, but is not obligated to, provide updates or support for the Software based on user feedback. All updates will be provided at the sole discretion of the Licensor.
+
+8. Ownership and Attribution
+All rights, title, and interest in the Software remain with Licensor. You are not required to provide attribution when using or generating content with the Software, but you must preserve copyright notices and attribution when redistributing the Software. You may not claim ownership of the Software itself.
+
+9. Termination
+Licensor reserves the right to terminate this license at any time if you are found in violation of the terms of this Agreement. Upon termination, you must immediately cease all use of the Software and destroy any copies in your possession.
+
