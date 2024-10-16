@@ -1,5 +1,7 @@
 import logging
 import os
+import platform
+import subprocess
 import webbrowser
 from collections import namedtuple
 
@@ -385,4 +387,9 @@ def generate_pdf(
     logger.info(f"PDF file saved to {pdf_filename}")
 
     # Open the generated PDF file in the default PDF viewer
-    webbrowser.open_new(pdf_filename)
+    if platform.system() == "Linux":
+        subprocess.Popen(["xdg-open", pdf_dir])
+    elif platform.system() == "Windows":
+        webbrowser.open_new_tab(pdf_filename)
+    else:
+        logger.error("Unsupported OS. Please open the PDF file manually.")
