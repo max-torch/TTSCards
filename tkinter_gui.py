@@ -206,11 +206,6 @@ def main():
             "This application converts Tabletop Simulator (TTS) cards to PDF files. You are responsible for how you use this software.\n\nThe following open-source libraries are used in this application:\n- Pillow\n- PyTesseract\n- OpenCV\n- TkInter\n\nThis application is not affiliated with Tabletop Simulator or Berserk Games."
         ),
     )
-    # Add a command to donate, with a donate button that can be clicked to go directly to the Ko-fi page
-    about_menu.add_command(
-        label="Support the Developer",
-        command=lambda: webbrowser.open("https://ko-fi.com/cyberviber")
-    )
 
     # Create a Learn menu
     learn_menu = tk.Menu(menubar, tearoff=0)
@@ -572,11 +567,6 @@ def main():
         main_frame, text="Generate PDF", command=start_script_wrapper
     )
     start_button.grid(column=0, row=7, sticky=tk.W)
-
-    donation_button = ttk.Button(
-        main_frame, text="Support the Developer", command=lambda: webbrowser.open("https://ko-fi.com/cyberviber")
-    )
-    donation_button.grid(column=1, row=7, sticky=tk.W)
 
     # Apply padding to all widgets
     for child in main_frame.winfo_children():
