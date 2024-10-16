@@ -56,7 +56,6 @@ def main():
 
     os.makedirs(os_output_dir, exist_ok=True)
     config_dir = os.path.join(os_output_dir, "config.json")
-    print(f"Config directory: {config_dir}")
 
     def load_user_settings() -> dict:
         if os.path.exists(config_dir):
