@@ -307,7 +307,7 @@ def load_images(output_directory: str) -> list[dict]:
 
 
 def start_script(
-        os_output_dir: str,
+        output_directory: str,
         path: str,
         cachepath: str,
         preset_image_size: str,
@@ -338,6 +338,7 @@ def start_script(
     Starts the script to process images and arrange them into a PDF.
 
     Args:
+        output_directory (str): Path to the output directory
         path (str): Path to the input file containing TTS Saved Object data or folder containing images.
         cachepath (str): Path to the cache directory.
         preset_image_size (str): Preset size of the images.
@@ -372,6 +373,7 @@ def start_script(
     else:
         logger.setLevel(logging.INFO) if verbose else logger.setLevel(logging.WARNING)
 
+    logger.debug(f"output_directory: {output_directory}")
     logger.debug(f"path: {path}")
     logger.debug(f"cachepath: {cachepath}")
     logger.debug(f"preset_image_size: {preset_image_size}")
@@ -393,7 +395,6 @@ def start_script(
     logger.debug(f"bleed_width: {bleed_width}")
     logger.debug(f"line_width: {line_width}")
 
-    output_directory = os_output_dir
     os.makedirs(output_directory, exist_ok=True)
 
     try:
