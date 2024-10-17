@@ -323,7 +323,6 @@ def main():
 
     # Create checkboxes for the Additional Options
     verbose = tk.BooleanVar(value=True)
-    process_nested_containers = tk.BooleanVar(value=True)
     exclude_card_urls = tk.BooleanVar(value=True)
     exclude_card_backs = tk.BooleanVar()
     generate_bleed = tk.BooleanVar()
@@ -345,21 +344,12 @@ def main():
     verbose_checkbox.grid(column=0, row=0, sticky=tk.W)
     tooltips.append(Tooltip(verbose_checkbox, "The console output will have more details."))
 
-    process_nested_containers_checkbox = ttk.Checkbutton(
-        additional_options_frame,
-        text="Process Nested Bags",
-        variable=process_nested_containers,
-    )
-    process_nested_containers_checkbox.grid(column=0, row=1, sticky=tk.W)
-    tooltips.append(
-        Tooltip(process_nested_containers_checkbox, "Bags that are nested within other bags will be processed."))
-
     exclude_card_urls_checkbox = ttk.Checkbutton(
         additional_options_frame,
         text="Exclude specific card image URLs",
         variable=exclude_card_urls,
     )
-    exclude_card_urls_checkbox.grid(column=0, row=2, sticky=tk.W)
+    exclude_card_urls_checkbox.grid(column=0, row=1, sticky=tk.W)
     tooltips.append(Tooltip(exclude_card_urls_checkbox,
                             "You can create a file named `image_blacklist.txt` in the Output Folder and list the URLs of the card images you want to exclude from the output, where each URL is on separate lines. You have to look in the TTS object file to find the specific URLs of the card images."))
 
@@ -368,13 +358,13 @@ def main():
         text="Exclude card backs",
         variable=exclude_card_backs,
     )
-    exclude_card_backs_checkbox.grid(column=0, row=3, sticky=tk.W)
+    exclude_card_backs_checkbox.grid(column=0, row=2, sticky=tk.W)
     tooltips.append(Tooltip(exclude_card_backs_checkbox, "All card backs will be excluded from the output"))
 
     save_images_checkbox = ttk.Checkbutton(
         additional_options_frame, text="Save Images to File", variable=save_images
     )
-    save_images_checkbox.grid(column=0, row=4, sticky=tk.W)
+    save_images_checkbox.grid(column=0, row=3, sticky=tk.W)
     tooltips.append(Tooltip(save_images_checkbox,
                             "The card images will be saved to a folder named 'output/img' in the same directory as this application."))
 
@@ -518,7 +508,6 @@ def main():
                     gutter_margin_size.get(),
                     dpi.get(),
                     verbose.get(),
-                    process_nested_containers.get(),
                     exclude_card_urls.get(),
                     exclude_card_backs.get(),
                     generate_bleed.get(),
