@@ -85,7 +85,7 @@ def main():
         root.iconbitmap(sys.executable)
     else:
         img = tk.PhotoImage(file="./assets/ttscards_mark.png")
-        root.tk.call("wm", "iconphoto", root._w, img)
+        root.iconphoto(False, img)
     style = ttk.Style()
     style.theme_use("alt")
 
