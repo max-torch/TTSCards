@@ -536,6 +536,12 @@ def main():
         progress_window.protocol("WM_DELETE_WINDOW", lambda: None)
         progress_window.resizable(False, False)
 
+        if platform.system() == "Windows":
+            progress_window.iconbitmap(sys.executable)
+        else:
+            img = tk.PhotoImage(file="./assets/ttscards_mark.png")
+            progress_window.tk.call("wm", "iconphoto", root._w, img)
+
         # Center the progress window on the monitor screen
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
