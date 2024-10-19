@@ -85,7 +85,7 @@ def main():
         root.iconbitmap(sys.executable)
     else:
         img = tk.PhotoImage(file="./assets/ttscards_mark.png")
-        root.tk.call("wm", "iconphoto", root._w, img)
+        root.iconphoto(False, img)
     style = ttk.Style()
     style.theme_use("alt")
 
@@ -325,6 +325,7 @@ def main():
     verbose = tk.BooleanVar(value=True)
     exclude_card_urls = tk.BooleanVar(value=True)
     exclude_card_backs = tk.BooleanVar()
+    exclude_card_faces = tk.BooleanVar()
     generate_bleed = tk.BooleanVar()
     sharpen_text = tk.BooleanVar()
     draw_cut_lines = tk.BooleanVar()
@@ -361,10 +362,18 @@ def main():
     exclude_card_backs_checkbox.grid(column=0, row=2, sticky=tk.W)
     tooltips.append(Tooltip(exclude_card_backs_checkbox, "All card backs will be excluded from the output"))
 
+    exclude_card_faces_checkbox = ttk.Checkbutton(
+        additional_options_frame,
+        text="Exclude card faces",
+        variable=exclude_card_faces,
+    )
+    exclude_card_faces_checkbox.grid(column=0, row=3, sticky=tk.W)
+    tooltips.append(Tooltip(exclude_card_faces_checkbox, "All card faces will be excluded from the output"))
+
     save_images_checkbox = ttk.Checkbutton(
         additional_options_frame, text="Save Images to File", variable=save_images
     )
-    save_images_checkbox.grid(column=0, row=3, sticky=tk.W)
+    save_images_checkbox.grid(column=0, row=4, sticky=tk.W)
     tooltips.append(Tooltip(save_images_checkbox,
                             "The card images will be saved to a folder named 'output/img' in the same directory as this application."))
 
@@ -489,6 +498,11 @@ def main():
         if error_messages:
             messagebox.showerror("Error", "\n\n".join(error_messages))
             return
+        
+        # Check if both `exclude_card_backs` and `exclude_card_faces` are selected
+        if exclude_card_backs.get() and exclude_card_faces.get():
+            messagebox.showerror("Error", "You cannot exclude both card backs and card faces.")
+            return
 
         def top_level_window_wrapper():
             """
@@ -510,6 +524,7 @@ def main():
                     verbose.get(),
                     exclude_card_urls.get(),
                     exclude_card_backs.get(),
+                    exclude_card_faces.get(),
                     generate_bleed.get(),
                     sharpen_text.get(),
                     draw_cut_lines.get(),

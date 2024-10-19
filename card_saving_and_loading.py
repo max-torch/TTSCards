@@ -132,7 +132,7 @@ def crop_from_sprite_sheet(
     return card
 
 
-def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepath: str, exclude_card_backs: bool) -> list[dict]:
+def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepath: str, exclude_card_backs: bool, exclude_card_faces: bool) -> list[dict]:
     """
     Processes a list of card dictionaries, downloading and cropping images for each card.
 
@@ -142,6 +142,7 @@ def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepat
         blacklist (list[str]): A list of URLs to be excluded from downloading.
         cachepath (str): The path to the cache directory for storing downloaded images.
         exclude_card_backs (bool): Flag to exclude card backs from processing.
+        exclude_card_faces (bool): Flag to exclude card faces from processing.
 
     Returns:
         list[dict]: A list of dictionaries containing the processed card images with keys 'face' and 'back'.
@@ -159,7 +160,7 @@ def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepat
 
         # Download and split the sprite sheet for the deck
         image = {}
-        if face_url:
+        if face_url and not exclude_card_faces:
             sprite_sheet = download_image(face_url, blacklist, cachepath)
             if sprite_sheet:
                 card_face = crop_from_sprite_sheet(
@@ -297,6 +298,7 @@ def start_script(
         verbose: bool,
         exclude_card_urls: bool,
         exclude_card_backs: bool,
+        exclude_card_faces: bool,
         generate_bleed: bool,
         sharpen_text: bool,
         draw_cut_lines: bool,
@@ -327,6 +329,7 @@ def start_script(
         verbose (bool): Flag to enable verbose logging.
         exclude_card_urls (bool): Flag to exclude card URLs from processing.
         exclude_card_backs (bool): Flag to exclude card backs from processing.
+        exclude_card_faces (bool): Flag to exclude card faces from processing.
         generate_bleed (bool): Flag to generate bleed for the images.
         sharpen_text (bool): Flag to sharpen text in the images.
         draw_cut_lines (bool): Flag to draw cut lines on the images.
@@ -390,7 +393,7 @@ def start_script(
         logger.info("Loading images from URLs in TTS Saved Object")
         card_objects = find_cards_in_tts_object(save_object_data)
         custom_deck_objects = find_custom_decks_in_tts_object(save_object_data)
-        images = process_cards(card_objects, custom_deck_objects, blacklist, cachepath, exclude_card_backs)
+        images = process_cards(card_objects, custom_deck_objects, blacklist, cachepath, exclude_card_backs, exclude_card_faces)
         if not images:
             raise CardsNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images")
