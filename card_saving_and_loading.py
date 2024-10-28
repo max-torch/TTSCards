@@ -132,7 +132,8 @@ def crop_from_sprite_sheet(
     return card
 
 
-def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepath: str, exclude_card_backs: bool, exclude_card_faces: bool) -> list[dict]:
+def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepath: str, exclude_card_backs: bool,
+                  exclude_card_faces: bool) -> list[dict]:
     """
     Processes a list of card dictionaries, downloading and cropping images for each card.
 
@@ -260,7 +261,6 @@ def load_images(output_directory: str) -> list[dict]:
         list[dict]: A list of dictionaries containing the loaded images. Each dictionary has a key 'face' or 'back'
                     corresponding to the type of image.
     """
-    images = []
     image_files = sorted(
         [
             file
@@ -271,15 +271,20 @@ def load_images(output_directory: str) -> list[dict]:
             int(text) if text.isdigit() else text for text in re.split(r"(\d+)", file)
         ],
     )
+    image_dict = {}
     for filename in image_files:
         image = Image.open(f"{output_directory}/{filename}")
-        if "_face" in filename:
-            images.append({"face": image})
-        elif "_back" in filename:
-            images.append({"back": image})
+        name_format_match = re.match(r"card_(\d+)_(face|back).png", filename)
+        if name_format_match:
+            card_number, card_side = name_format_match.groups()
+            if card_number not in image_dict:
+                image_dict[card_number] = {}
+            image_dict[card_number][card_side] = image
         else:
             # If the image name doesn't conform, treat is as a face image
-            images.append({"face": image})
+            image_dict[filename] = {"face": image}
+
+    images = list(image_dict.values())
 
     return images
 
@@ -393,7 +398,8 @@ def start_script(
         logger.info("Loading images from URLs in TTS Saved Object")
         card_objects = find_cards_in_tts_object(save_object_data)
         custom_deck_objects = find_custom_decks_in_tts_object(save_object_data)
-        images = process_cards(card_objects, custom_deck_objects, blacklist, cachepath, exclude_card_backs, exclude_card_faces)
+        images = process_cards(card_objects, custom_deck_objects, blacklist, cachepath, exclude_card_backs,
+                               exclude_card_faces)
         if not images:
             raise CardsNotFoundError()
         logger.info(f"Successfully loaded {len(images)} images")
