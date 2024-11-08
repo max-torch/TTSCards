@@ -375,7 +375,7 @@ def main():
     )
     save_images_checkbox.grid(column=0, row=4, sticky=tk.W)
     tooltips.append(Tooltip(save_images_checkbox,
-                            "The card images will be saved to a folder named 'output/img' in the same directory as this application."))
+                            "The card images will be saved to a folder named 'img' in the output directory."))
 
     pdf_generation_options_frame = ttk.LabelFrame(
         main_frame, text="PDF Generation Options"
