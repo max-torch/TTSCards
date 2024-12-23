@@ -183,14 +183,14 @@ def process_cards(cards: list[dict], decks: dict, blacklist: list[str], cachepat
     return images
 
 
-def find_cards_in_tts_object(tts_object: dict, key_name: str = "Name", key_value: str = "Card") -> list[dict]:
+def find_cards_in_tts_object(tts_object: dict, key_name: str = "Name", key_values: list[str] = ["Card", "CardCustom"]) -> list[dict]:
     """
     Finds all dictionaries in a TTS object that contain a specific key-value pair.
 
     Args:
         tts_object (dict): The TTS object to search through.
         key_name (str): The key to search for in the dictionaries.
-        key_value (str): The value to search for in the dictionaries.
+        key_values (list[str]): The values to search for in the dictionaries.
 
     Returns:
         list[dict]: A list of dictionaries containing the key-value pair.
@@ -200,7 +200,7 @@ def find_cards_in_tts_object(tts_object: dict, key_name: str = "Name", key_value
     def recursive_search(data):
         # If the data is a dictionary, check if it contains the key-value pair
         if isinstance(data, dict):
-            if data.get(key_name) == key_value:
+            if data.get(key_name) in key_values:
                 result.append(data)
 
             # Recursively search through all values in the dictionary
